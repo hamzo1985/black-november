@@ -50,24 +50,25 @@
   .cat-h { display: flex; justify-content: space-between; align-items: baseline; margin: 2px 2px 12px; }
   .cat-h h2 { font-size: 22px; font-weight: 900; }
   .cat-h span { font-size: 13px; color: var(--ink2); }
+  /* card: 8px grid · 2 cols, 12px gutter · brand 16 → image 120 → title 2 lines → tags 1 line → price row */
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .card { background: var(--card); border-radius: 18px; padding: 12px; position: relative; display: flex; flex-direction: column; gap: 7px; text-align: right; color: var(--ink);
+  .card { background: var(--card); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; text-align: right; color: var(--ink);
           box-shadow: 0 1px 2px #0000000a, 0 6px 18px #00000010; }
-  .badge { position: absolute; top: 10px; left: 10px; background: var(--red); color: #fff; font-size: 12px; padding: 3px 8px; border-radius: 20px; z-index: 1; }
-  .brand { height: 22px; display: flex; align-items: center; }
-  .brand img { max-height: 14px; max-width: 90px; filter: brightness(0); opacity: .82; }
-  .brand b { font-family: "Montserrat"; font-weight: 900; font-size: 12px; letter-spacing: .5px; }
-  .pic { height: 132px; display: flex; align-items: center; justify-content: center; }
-  .pic img { max-width: 100%; max-height: 132px; object-fit: contain; }
-  .nm { font-size: 13.5px; font-weight: 700; line-height: 1.4; color: var(--ink); min-height: 38px; }
-  .nm small { display: block; color: var(--ink2); font-size: 11.5px; font-weight: 500; }
-  .pr { display: flex; align-items: baseline; justify-content: flex-end; gap: 7px; direction: ltr; margin-top: auto; }
-  .pr .o { font-size: 12px; color: #9A958E; text-decoration: line-through; }
-  .pr .p { font-size: 25px; color: var(--red-ink); line-height: 1; }
+  .brand { height: 16px; display: flex; align-items: center; }
+  .brand img { max-height: 14px; max-width: 84px; filter: brightness(0); opacity: .8; }
+  .brand b { font-family: "Montserrat"; font-weight: 900; font-size: 11px; letter-spacing: .5px; color: var(--ink2); }
+  .pic { height: 120px; margin: 8px 0 12px; display: flex; align-items: center; justify-content: center; }
+  .pic img { max-width: 100%; max-height: 120px; object-fit: contain; }
+  .nm { font-size: 14px; font-weight: 700; line-height: 20px; max-height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--ink); }
+  .tags { font-size: 11.5px; line-height: 16px; margin-top: 2px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .foot { display: flex; align-items: flex-end; justify-content: space-between; margin-top: auto; padding-top: 8px; gap: 8px; }
+  .pr { display: flex; flex-direction: column; align-items: flex-start; }
+  .pr .o { font-size: 12px; line-height: 16px; color: #9A958E; text-decoration: line-through; }
+  .pr .p { font-size: 22px; line-height: 26px; color: var(--red-ink); }
+  .card .wa { width: 40px; height: 40px; padding: 0; border-radius: 50%; background: var(--wa-tint); flex: none; }
+  .card .wa svg { width: 20px; fill: var(--wa-ink); }
   .wa { background: var(--wa); border-radius: 12px; padding: 9px; display: flex; gap: 6px; justify-content: center; align-items: center; font-weight: 700; font-size: 14px; color: #fff; text-decoration: none; }
   .wa svg { width: 17px; fill: #fff; }
-  .card .wa { background: var(--wa-tint); color: var(--wa-ink); min-height: 40px; }
-  .card .wa svg { fill: var(--wa-ink); }
   .empty { padding: 60px 20px; text-align: center; color: var(--ink2); }
 
   /* sheet */
@@ -79,8 +80,8 @@
   .grab { width: 44px; height: 5px; border-radius: 3px; background: #D6D1C9; margin: 0 auto 10px; }
   .sh-top { display: flex; justify-content: space-between; align-items: center; direction: ltr; }
   .sh-top img { max-height: 20px; max-width: 120px; filter: brightness(0); opacity: .85; }
-  .sh-pic { height: 300px; display: flex; align-items: center; justify-content: center; margin: 12px 0; }
-  .sh-pic img { max-width: 100%; max-height: 300px; object-fit: contain; }
+  .sh-pic { height: 260px; display: flex; align-items: center; justify-content: center; margin: 12px 0; }
+  .sh-pic img { max-width: 100%; max-height: 260px; object-fit: contain; }
   .sh-nm { font-size: 19px; font-weight: 900; line-height: 1.35; }
   .sh-spec { color: var(--ink2); font-size: 13px; margin-top: 4px; }
   .sh-pr { display: flex; justify-content: space-between; align-items: flex-end; margin: 16px 0; }
@@ -88,8 +89,8 @@
   .sh-pr .o { font-size: 15px; color: #9A958E; text-decoration: line-through; }
   .save { background: #FDECEC; color: var(--red-ink); border-radius: 10px; padding: 6px 12px; font-size: 14px; font-weight: 700; }
   .sh-btns { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-  .sh-btns .wa { font-size: 17px; padding: 15px; border-radius: 14px; }
-  .share { background: #F1EEE9; border-radius: 14px; padding: 0 18px; display: flex; align-items: center; }
+  .sh-btns .wa { font-size: 16px; height: 52px; padding: 0 16px; border-radius: 14px; }
+  .share { background: #F1EEE9; border-radius: 14px; width: 52px; justify-content: center; display: flex; align-items: center; }
   .share svg { width: 22px; fill: var(--ink); }
 
   footer { background: var(--bg); padding: 30px 18px 40px; text-align: center; color: var(--mute); font-size: 13px; line-height: 1.9; border-top: 1px solid var(--line); }
@@ -137,12 +138,14 @@ const brandHtml = (it, h) => it.logo ? `<img src="img/${it.logo}.webp" alt="${es
 
 function card(it) {
   return `<article class="card" data-id="${it.id}">
-    <span class="badge n">-${pct(it)}%</span>
     <div class="brand">${brandHtml(it, 14)}</div>
     <div class="pic"><img src="img/${it.img}-s.webp" alt="${esc(title(it))}" loading="lazy" decoding="async"></div>
-    <div class="nm">${esc(it.name)}${it.spec ? `<small>${esc(it.spec)}</small>` : ""}</div>
-    <div class="pr"><span class="o n">${it.old}</span><span class="p n">${it.price}${SHK}</span></div>
-    <a class="wa" href="${waLink(it)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${WA} اطلب</a>
+    <div class="nm">${esc(it.name)}</div>
+    ${it.spec ? `<div class="tags">${esc(it.spec)}</div>` : ""}
+    <div class="foot">
+      <div class="pr"><span class="o n">${it.old}</span><span class="p n">${it.price}${SHK}</span></div>
+      <a class="wa" href="${waLink(it)}" target="_blank" rel="noopener" aria-label="اطلب بالواتساب" onclick="event.stopPropagation()">${WA}</a>
+    </div>
   </article>`;
 }
 function render(q = "") {
@@ -190,7 +193,7 @@ window.addEventListener("scroll", () => {
 function openSheet(id, push = true) {
   const it = BYID[id]; if (!it) return;
   $("#sheet").innerHTML = `<div class="grab"></div>
-    <div class="sh-top"><div>${brandHtml(it, 20)}</div><span class="badge n" style="position:static">-${pct(it)}%</span></div>
+    <div class="sh-top"><div>${brandHtml(it, 20)}</div></div>
     <div class="sh-pic"><img src="img/${it.img}-l.webp" alt="${esc(title(it))}"></div>
     <div class="sh-nm">${esc(it.name)}</div>
     <div class="sh-spec">${it.spec ? esc(it.spec) + " · " : ""}موديل <span class="n" style="font-weight:600">${esc(it.model)}</span></div>
