@@ -19,7 +19,7 @@
   html { scroll-behavior: smooth; scroll-padding-top: 118px; }
   body { background: var(--bg); color: #fff; font-family: "Alexandria", system-ui, sans-serif; font-weight: 500; overflow-x: hidden; }
   .n { font-family: "Montserrat", sans-serif; font-weight: 900; direction: ltr; unicode-bidi: isolate; }
-  .shk { height: .7em; width: auto; display: inline-block; vertical-align: baseline; margin-inline-start: .12em; }
+  .shk { height: .55em; width: auto; display: inline-block; vertical-align: baseline; margin-inline-start: .12em; }
   img { display: block; }
   button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
 
@@ -54,16 +54,18 @@
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .card { background: var(--card); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; text-align: right; color: var(--ink);
           box-shadow: 0 1px 2px #0000000a, 0 6px 18px #00000010; }
-  .brand { height: 16px; display: flex; align-items: center; }
-  .brand img { max-height: 14px; max-width: 84px; filter: brightness(0); opacity: .8; }
+  .brand { height: 26px; display: flex; align-items: center; }
+  .brand img { filter: brightness(0); opacity: .78; }
   .brand b { font-family: "Montserrat"; font-weight: 900; font-size: 11px; letter-spacing: .5px; color: var(--ink2); }
   .pic { height: 120px; margin: 8px 0 12px; display: flex; align-items: center; justify-content: center; }
   .pic img { max-width: 100%; max-height: 120px; object-fit: contain; }
-  .nm { font-size: 14px; font-weight: 700; line-height: 20px; max-height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--ink); }
+  .nm b { font-weight: 700; }
+  .nm span { font-weight: 500; color: #4A4641; }
+  .nm { font-size: 14px; font-weight: 500; line-height: 20px; max-height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--ink); }
   .tags { font-size: 11.5px; line-height: 16px; margin-top: 2px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .foot { display: flex; align-items: flex-end; justify-content: space-between; margin-top: auto; padding-top: 8px; gap: 8px; }
   .pr { display: flex; flex-direction: column; align-items: flex-start; }
-  .pr .o { font-size: 12px; line-height: 16px; color: #9A958E; text-decoration: line-through; }
+  .pr .o { font-size: 12px; line-height: 16px; color: #9A958E; text-decoration: line-through; font-weight: 600; }
   .pr .p { font-size: 22px; line-height: 26px; color: var(--red-ink); }
   .card .wa { width: 40px; height: 40px; padding: 0; border-radius: 50%; background: var(--wa-tint); flex: none; }
   .card .wa svg { width: 20px; fill: var(--wa-ink); }
@@ -79,10 +81,10 @@
   .open .sheet { transform: none; }
   .grab { width: 44px; height: 5px; border-radius: 3px; background: #D6D1C9; margin: 0 auto 10px; }
   .sh-top { display: flex; justify-content: space-between; align-items: center; direction: ltr; }
-  .sh-top img { max-height: 20px; max-width: 120px; filter: brightness(0); opacity: .85; }
+  .sh-top img { filter: brightness(0); opacity: .85; }
   .sh-pic { height: 260px; display: flex; align-items: center; justify-content: center; margin: 12px 0; }
   .sh-pic img { max-width: 100%; max-height: 260px; object-fit: contain; }
-  .sh-nm { font-size: 19px; font-weight: 900; line-height: 1.35; }
+  .sh-nm { font-size: 20px; font-weight: 500; line-height: 1.35; } .sh-nm b { font-weight: 900; } .sh-nm span { color: #4A4641; }
   .sh-spec { color: var(--ink2); font-size: 13px; margin-top: 4px; }
   .sh-pr { display: flex; justify-content: space-between; align-items: flex-end; margin: 16px 0; }
   .sh-pr .p { font-size: 44px; color: var(--red-ink); line-height: 1; }
@@ -132,25 +134,29 @@ let D, BYID = {};
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const pct = it => Math.round(100 - it.price * 100 / it.old);
-const title = it => `${it.name}${it.brand ? " " + it.brand : ""}`;
+const title = it => `${it.name}${it.size ? " " + it.size : ""}${it.brand ? " " + it.brand : ""}`;
 const waLink = it => `https://wa.me/${WA_NUM}?text=${encodeURIComponent(`مرحبا، بدي اطلب من عروض Black November:\n${title(it)}${it.spec ? " (" + it.spec + ")" : ""}\nموديل: ${it.model}\nالسعر: ${it.price} ₪`)}`;
-const brandHtml = (it, h) => it.logo ? `<img src="img/${it.logo}.webp" alt="${esc(it.brand)}" style="max-height:${h}px">` : `<b>${esc(it.brand)}</b>`;
+const brandHtml = (it, k = 1) => {
+  if (!it.logo) return `<b>${esc(it.brand)}</b>`;
+  const [f, ar] = it.logo, hh = Math.min(26, Math.sqrt(1300 / ar)) * k, w = Math.min(92 * k, hh * ar);
+  return `<img src="img/${f}.webp" alt="${esc(it.brand)}" style="width:${w.toFixed(1)}px;height:${(w / ar).toFixed(1)}px">`;
+};
 
 function card(it) {
   return `<article class="card" data-id="${it.id}">
-    <div class="brand">${brandHtml(it, 14)}</div>
+    <div class="brand">${brandHtml(it)}</div>
     <div class="pic"><img src="img/${it.img}-s.webp" alt="${esc(title(it))}" loading="lazy" decoding="async"></div>
-    <div class="nm">${esc(it.name)}</div>
+    <div class="nm"><b>${esc(it.name)}</b>${it.size ? ` <span>${esc(it.size)}</span>` : ""}</div>
     ${it.spec ? `<div class="tags">${esc(it.spec)}</div>` : ""}
     <div class="foot">
-      <div class="pr"><span class="o n">${it.old}</span><span class="p n">${it.price}${SHK}</span></div>
+      <div class="pr"><span class="p n">${it.price}${SHK}</span><span class="o n">${it.old}${SHK}</span></div>
       <a class="wa" href="${waLink(it)}" target="_blank" rel="noopener" aria-label="اطلب بالواتساب" onclick="event.stopPropagation()">${WA}</a>
     </div>
   </article>`;
 }
 function render(q = "") {
   q = q.trim().toLowerCase();
-  const match = it => !q || (it.name + " " + it.brand + " " + it.model + " " + it.spec).toLowerCase().includes(q);
+  const match = it => !q || (it.name + " " + it.size + " " + it.brand + " " + it.model + " " + it.spec).toLowerCase().includes(q);
   let html = "";
   for (const c of D.cats) {
     const its = D.items.filter(it => it.cat === c.id && match(it)).sort((a, b) => a.price - b.price);
@@ -193,11 +199,11 @@ window.addEventListener("scroll", () => {
 function openSheet(id, push = true) {
   const it = BYID[id]; if (!it) return;
   $("#sheet").innerHTML = `<div class="grab"></div>
-    <div class="sh-top"><div>${brandHtml(it, 20)}</div></div>
+    <div class="sh-top"><div>${brandHtml(it, 1.35)}</div></div>
     <div class="sh-pic"><img src="img/${it.img}-l.webp" alt="${esc(title(it))}"></div>
-    <div class="sh-nm">${esc(it.name)}</div>
+    <div class="sh-nm"><b>${esc(it.name)}</b>${it.size ? ` <span>${esc(it.size)}</span>` : ""}</div>
     <div class="sh-spec">${it.spec ? esc(it.spec) + " · " : ""}موديل <span class="n" style="font-weight:600">${esc(it.model)}</span></div>
-    <div class="sh-pr"><div><div class="o n">${it.old} ₪</div><div class="p n">${it.price}${SHK}</div></div>
+    <div class="sh-pr"><div><div class="p n">${it.price}${SHK}</div><div class="o n">${it.old}${SHK}</div></div>
       <span class="save">وفّر <span class="n">${it.old - it.price}</span> ₪</span></div>
     <div class="sh-btns"><a class="wa" href="${waLink(it)}" target="_blank" rel="noopener">${WA} اطلب بالواتساب</a>
       <button class="share" onclick="share('${it.id}')" aria-label="شارك">${SHARE}</button></div>`;
