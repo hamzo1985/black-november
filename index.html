@@ -165,6 +165,11 @@ function chips() {
   });
 }
 function watch() {}
+// scroll only the chips row sideways; scrollIntoView on a chip inside the sticky bar also scrolls the page on mobile (the jump-up bug)
+function centerChip(ch) {
+  const row = $("#chips"), cr = row.getBoundingClientRect(), r = ch.getBoundingClientRect();
+  row.scrollBy({ left: (r.left + r.width / 2) - (cr.left + cr.width / 2), behavior: "smooth" });
+}
 let tick = false;
 window.addEventListener("scroll", () => {
   if (tick) return; tick = true;
@@ -173,7 +178,7 @@ window.addEventListener("scroll", () => {
     for (const s of document.querySelectorAll("section.cat")) { if (s.getBoundingClientRect().top <= 140) cur = s.id.slice(2); else break; }
     document.querySelectorAll(".chip").forEach(ch => {
       const on = ch.dataset.c === cur;
-      if (on && !ch.classList.contains("on")) ch.scrollIntoView({ inline: "center", block: "nearest" });
+      if (on && !ch.classList.contains("on")) centerChip(ch);
       ch.classList.toggle("on", on);
     });
   });
