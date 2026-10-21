@@ -45,7 +45,7 @@
   /* sections */
   #list { background: var(--paper); color: var(--ink); padding-bottom: 10px; }
   section.cat { padding: 20px 14px 8px; }
-  .cover { width: 100%; aspect-ratio: 1; border-radius: 22px; overflow: hidden; background: #111; margin-bottom: 14px; box-shadow: 0 10px 30px #0000001f; }
+  .cover { width: 100%; aspect-ratio: 1; border-radius: 22px; overflow: hidden; background: #111; margin-bottom: 16px; box-shadow: 0 10px 30px #0000001f; }
   .cover img { width: 100%; height: 100%; object-fit: cover; }
   .cat-h { display: flex; justify-content: space-between; align-items: baseline; margin: 2px 2px 12px; }
   .cat-h h2 { font-size: 22px; font-weight: 900; }
@@ -54,7 +54,7 @@
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .card { background: var(--card); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; text-align: right; color: var(--ink);
           box-shadow: 0 1px 2px #0000000a, 0 6px 18px #00000010; }
-  .brand { height: 26px; display: flex; align-items: center; }
+  .brand { height: 26px; display: flex; align-items: center; justify-content: center; }
   .brand img { filter: brightness(0); opacity: .78; }
   .brand b { font-family: "Montserrat"; font-weight: 900; font-size: 11px; letter-spacing: .5px; color: var(--ink2); }
   .pic { height: 120px; margin: 8px 0 12px; display: flex; align-items: center; justify-content: center; }
@@ -163,7 +163,7 @@ function render(q = "") {
     if (!its.length) continue;
     html += `<section class="cat" id="c-${c.id}">
       ${q ? "" : `<div class="cover"><img src="img/cover-${c.id}.webp" alt="${esc(c.label)}" loading="lazy"></div>`}
-      <div class="cat-h"><h2>${q ? esc(c.label) : ""}</h2><span>${its.length} صنف · ابتداءً من <span class="n">${Math.min(...its.map(i => i.price))}</span> ₪</span></div>
+      ${q ? `<div class="cat-h"><h2>${esc(c.label)}</h2></div>` : ""}
       <div class="grid">${its.map(card).join("")}</div></section>`;
   }
   $("#list").innerHTML = html || `<div class="empty">ما لقينا «${esc(q)}». جرّب اسم ماركة أو نوع جهاز.</div>`;
