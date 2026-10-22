@@ -98,6 +98,42 @@
   footer { background: var(--bg); padding: 30px 18px 40px; text-align: center; color: var(--mute); font-size: 13px; line-height: 1.9; border-top: 1px solid var(--line); }
   footer .ag { height: 44px; margin: 0 auto 12px; }
   footer b { color: #fff; }
+  .x { display: none; }
+  .card { cursor: pointer; transition: transform .18s ease, box-shadow .18s ease; }
+
+  /* ── desktop & tablet ── */
+  @media (min-width: 760px) {
+    html { scroll-padding-top: 130px; }
+    .bar-top, .chips { max-width: 1240px; margin: 0 auto; }
+    .bar-top { padding: 12px 24px 8px; }
+    .bar-top .ag { height: 36px; }
+    .search { max-width: 460px; }
+    .chips { padding: 6px 24px 12px; justify-content: center; flex-wrap: wrap; overflow: visible; }
+    .chip { padding: 7px 13px; font-size: 13.5px; }
+    .hero { height: min(88vh, 900px); min-height: 520px;
+            background: #030303 url(img/hero-desk.webp) center/contain no-repeat; }
+    section.cat { max-width: 1240px; margin: 0 auto; padding: 40px 24px 8px; display: grid; grid-template-columns: 300px 1fr; gap: 32px; align-items: start; }
+    .cover { position: sticky; top: calc(var(--bar-h, 120px) + 20px); margin: 0; }
+    .cat-h { grid-column: 1 / -1; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 16px; }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 2px 4px #0000000d, 0 14px 30px #00000017; }
+    .card .wa:hover { background: #d5efdf; }
+    .pic { height: 150px; } .pic img { max-height: 150px; }
+    .empty { max-width: 1240px; margin: 0 auto; }
+    /* product sheet becomes a centered dialog */
+    .sheet { left: 50%; right: auto; top: 50%; bottom: auto; width: min(920px, 92vw); max-height: 86vh; border-radius: 24px; padding: 32px;
+             display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center;
+             transform: translate(-50%, -47%) scale(.98); opacity: 0; pointer-events: none; transition: transform .22s ease, opacity .22s ease; }
+    .open .sheet { transform: translate(-50%, -50%); opacity: 1; pointer-events: auto; }
+    .grab { display: none; }
+    .x { display: flex; position: absolute; top: 14px; left: 14px; width: 36px; height: 36px; border-radius: 50%; background: #F1EEE9; font-size: 22px; line-height: 1;
+         align-items: center; justify-content: center; color: var(--ink); }
+    .sh-pic { height: 380px; } .sh-pic img { max-height: 380px; }
+    .sh-nm { font-size: 24px; }
+    .wa, .share, .chip, .hero-go { cursor: pointer; }
+    footer { font-size: 14px; }
+  }
+  @media (min-width: 1200px) { section.cat { grid-template-columns: 340px 1fr; } }
 </style>
 </head>
 <body>
@@ -188,7 +224,7 @@ window.addEventListener("scroll", () => {
   if (tick) return; tick = true;
   requestAnimationFrame(() => {
     tick = false; let cur = null;
-    for (const s of document.querySelectorAll("section.cat")) { if (s.getBoundingClientRect().top <= 140) cur = s.id.slice(2); else break; }
+    for (const s of document.querySelectorAll("section.cat")) { if (s.getBoundingClientRect().top <= $("#bar").offsetHeight + 30) cur = s.id.slice(2); else break; }
     document.querySelectorAll(".chip").forEach(ch => {
       const on = ch.dataset.c === cur;
       if (on && !ch.classList.contains("on")) centerChip(ch);
@@ -198,18 +234,19 @@ window.addEventListener("scroll", () => {
 }, { passive: true });
 function openSheet(id, push = true) {
   const it = BYID[id]; if (!it) return;
-  $("#sheet").innerHTML = `<div class="grab"></div>
-    <div class="sh-top"><div>${brandHtml(it, 1.35)}</div></div>
-    <div class="sh-pic"><img src="img/${it.img}-l.webp" alt="${esc(title(it))}"></div>
-    <div class="sh-nm"><b>${esc(it.name)}</b>${it.size ? ` <span>${esc(it.size)}</span>` : ""}</div>
+  $("#sheet").innerHTML = `<div class="grab"></div><button class="x" onclick="closeSheet()" aria-label="سكّر">×</button>
+    <div class="sh-media"><div class="sh-top"><div>${brandHtml(it, 1.35)}</div></div>
+    <div class="sh-pic"><img src="img/${it.img}-l.webp" alt="${esc(title(it))}"></div></div>
+    <div class="sh-info"><div class="sh-nm"><b>${esc(it.name)}</b>${it.size ? ` <span>${esc(it.size)}</span>` : ""}</div>
     <div class="sh-spec">${it.spec ? esc(it.spec) + " · " : ""}موديل <span class="n" style="font-weight:600">${esc(it.model)}</span></div>
     <div class="sh-pr"><div><div class="p n">${it.price}${SHK}</div><div class="o n">${it.old}${SHK}</div></div>
       <span class="save">وفّر <span class="n">${it.old - it.price}</span> ₪</span></div>
     <div class="sh-btns"><a class="wa" href="${waLink(it)}" target="_blank" rel="noopener">${WA} اطلب بالواتساب</a>
-      <button class="share" onclick="share('${it.id}')" aria-label="شارك">${SHARE}</button></div>`;
+      <button class="share" onclick="share('${it.id}')" aria-label="شارك">${SHARE}</button></div></div>`;
   $("#pop").classList.add("open");
   if (push) history.pushState({ p: id }, "", "#p=" + id);
 }
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#pop").classList.contains("open")) closeSheet(); });
 function closeSheet(pop) { $("#pop").classList.remove("open"); if (!pop && location.hash.startsWith("#p=")) history.back(); }
 async function share(id) {
   const it = BYID[id], url = location.href.split("#")[0] + "#p=" + id;
@@ -221,9 +258,11 @@ window.addEventListener("popstate", () => { if (location.hash.startsWith("#p="))
 $("#list").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) openSheet(c.dataset.id); });
 let t; $("#q").addEventListener("input", e => { clearTimeout(t); t = setTimeout(() => render(e.target.value), 150); });
 
-fetch("data.json").then(r => r.json()).then(d => {
+const fitBar = () => { const b = $("#bar").offsetHeight; document.documentElement.style.scrollPaddingTop = (b + 12) + "px"; document.documentElement.style.setProperty("--bar-h", b + "px"); };
+fitBar(); addEventListener("resize", fitBar);
+fetch("data.json?v=" + document.lastModified.replace(/\D/g, "")).then(r => r.json()).then(d => {
   D = d; d.items.forEach(it => BYID[it.id] = it);
-  chips(); render();
+  chips(); fitBar(); render();
   if (location.hash.startsWith("#p=")) openSheet(location.hash.slice(3), false);
 });
 </script>
