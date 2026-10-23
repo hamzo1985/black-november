@@ -134,6 +134,26 @@
     footer { font-size: 14px; }
   }
   @media (min-width: 1200px) { section.cat { grid-template-columns: 340px 1fr; } }
+  /* gifts / draw */
+  section.gifts { padding-top: 20px; }
+  .gbox { background: #0b0b0c; color: #fff; border-radius: 22px; overflow: hidden; box-shadow: 0 10px 30px #0000002a; }
+  .gtext { padding: 22px 20px 6px; text-align: center; }
+  .gkick { display: inline-block; font-size: 13px; color: #ff6b72; background: #e3061322; border-radius: 20px; padding: 4px 12px; margin-bottom: 10px; }
+  .gh { font-size: 28px; font-weight: 900; line-height: 1.25; }
+  .gh span { color: #ff3a46; display: block; white-space: nowrap; }
+  .gsub { font-size: 14px; line-height: 1.6; opacity: .85; margin: 8px 0 12px; }
+  .glist { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .glist li { font-size: 14px; padding: 6px 14px 8px; border-radius: 20px; background: #ffffff12; border: 1px solid #ffffff2e; }
+  .glist li.more { border-color: #e30613; background: #e3061322; }
+  .gimg img { width: 100%; display: block; }
+  .chip.gift-chip { background: #2a1416; color: #ff8a90; }
+  .chip.gift-chip.on { background: var(--red); color: #fff; }
+  @media (min-width: 760px) {
+    section.cat.gifts { display: block; }
+    .gbox { display: grid; grid-template-columns: 1fr 1.25fr; align-items: center; }
+    .gtext { padding: 32px 36px; text-align: right; }
+    .gh { font-size: 38px; } .gsub { font-size: 16px; } .glist { justify-content: flex-start; } .glist li { font-size: 15px; }
+  }
 </style>
 </head>
 <body>
@@ -190,10 +210,25 @@ function card(it) {
     </div>
   </article>`;
 }
+// the Black November draw: any purchase from the offers enters it (Hamza, 2026-10-22)
+const GIFTS = `<section class="cat gifts" id="c-gifts">
+  <div class="gbox">
+    <div class="gtext">
+      <div class="gkick">سحب <span class="n" style="font-weight:600">Black November</span></div>
+      <h2 class="gh">الخصم إلك.. <span>والهدية كمان!</span></h2>
+      <p class="gsub">اشتري أي قطعة من عروض <span dir="ltr" style="unicode-bidi:isolate">Black November</span> وادخل السحب على:</p>
+      <ul class="glist">
+        <li><span dir="ltr" style="unicode-bidi:isolate">iPhone 18</span></li><li><span dir="ltr" style="unicode-bidi:isolate">PlayStation 5</span></li>
+        <li>تلفزيون 100 بوصة</li><li>سكوتر كهرباء</li><li>بسكليت كهرباء</li><li class="more">والعديد من الهدايا القيمة</li>
+      </ul>
+    </div>
+    <div class="gimg"><img src="img/gifts.webp" alt="هدايا سحب Black November: iPhone 18، PlayStation 5، تلفزيون 100 بوصة، سكوتر وبسكليت كهرباء" loading="eager"></div>
+  </div>
+</section>`;
 function render(q = "") {
   q = q.trim().toLowerCase();
   const match = it => !q || (it.name + " " + it.size + " " + it.brand + " " + it.model + " " + it.spec).toLowerCase().includes(q);
-  let html = "";
+  let html = q ? "" : GIFTS;
   for (const c of D.cats) {
     const its = D.items.filter(it => it.cat === c.id && match(it)).sort((a, b) => a.price - b.price);
     if (!its.length) continue;
@@ -206,7 +241,7 @@ function render(q = "") {
   watch();
 }
 function chips() {
-  $("#chips").innerHTML = D.cats.map(c => `<button class="chip" data-c="${c.id}">${esc(c.label)}</button>`).join("");
+  $("#chips").innerHTML = `<button class="chip gift-chip" data-c="gifts">🎁 الهدايا</button>` + D.cats.map(c => `<button class="chip" data-c="${c.id}">${esc(c.label)}</button>`).join("");
   $("#chips").addEventListener("click", e => {
     const b = e.target.closest(".chip"); if (!b) return;
     if ($("#q").value) { $("#q").value = ""; render(); }
