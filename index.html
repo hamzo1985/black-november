@@ -154,6 +154,35 @@
     .gtext { padding: 32px 36px; text-align: right; }
     .gh { font-size: 38px; } .gsub { font-size: 16px; } .glist { justify-content: flex-start; } .glist li { font-size: 15px; }
   }
+  /* wedding packages */
+  section.wed { padding-top: 26px; }
+  .whead { text-align: center; padding: 0 6px 12px; }
+  .wkick { display: inline-block; font-size: 13px; color: #8a5a2b; background: #f3e6d6; border-radius: 20px; padding: 4px 12px; margin-bottom: 8px; }
+  .whead h2 { font-size: 24px; font-weight: 900; line-height: 1.3; } .whead h2 span { color: var(--red-ink); }
+  .whead p { font-size: 13.5px; color: var(--ink2); margin-top: 6px; line-height: 1.6; }
+  .wbuds { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .wbud { padding: 7px 14px; border-radius: 20px; background: #fff; border: 1px solid var(--hair); font-size: 13.5px; color: var(--ink); }
+  .wbud.on { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 700; }
+  .wscroll { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -14px; padding: 4px 14px 12px; scrollbar-width: none; }
+  .wscroll::-webkit-scrollbar { display: none; }
+  .wcard { flex: 0 0 82%; scroll-snap-align: center; background: #0b0b0c; border-radius: 18px; overflow: hidden; box-shadow: 0 6px 18px #0000001f; text-align: right; color: #fff; cursor: pointer; }
+  .wcard img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+  .wmeta { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px 12px; font-size: 15px; }
+  .wmeta .n { color: #ff3a46; font-size: 20px; }
+  .whint { text-align: center; font-size: 12px; color: var(--ink2); }
+  .chip.wed-chip { background: #2a2116; color: #e9c9a0; } .chip.wed-chip.on { background: var(--red); color: #fff; }
+  .wimg { width: 100%; border-radius: 16px; display: block; }
+  .wl-h { font-weight: 900; font-size: 15px; margin: 14px 0 8px; }
+  .wl { list-style: none; display: grid; gap: 6px; }
+  .wl li { display: flex; align-items: baseline; gap: 6px; font-size: 14px; background: #F6F4F0; border-radius: 10px; padding: 8px 12px; }
+  .wl li span { color: #4A4641; } .wl li em { margin-inline-start: auto; font-style: normal; font-size: 12px; color: var(--ink2); }
+  .wg { display: flex; flex-wrap: wrap; gap: 6px; } .wg span { font-size: 12.5px; padding: 5px 10px; border-radius: 16px; background: #FDECEC; color: var(--red-ink); }
+  @media (min-width: 760px) {
+    section.cat.wed { display: block; }
+    .wscroll { display: grid; grid-template-columns: repeat(4, 1fr); overflow: visible; margin: 0; padding: 4px 0 12px; }
+    .wcard { flex: none; } .wcard:hover { transform: translateY(-3px); } .whint { display: none; }
+    .whead h2 { font-size: 32px; }
+  }
 </style>
 </head>
 <body>
@@ -225,10 +254,50 @@ const GIFTS = `<section class="cat gifts" id="c-gifts">
     <div class="gimg"><img src="img/gifts.webp" alt="هدايا سحب Black November: iPhone 18، PlayStation 5، تلفزيون 100 بوصة، سكوتر وبسكليت كهرباء" loading="eager"></div>
   </div>
 </section>`;
+// عروض العرسان (نفس بكجات عرض الخريف وأسعارها، بثيم Black November) — حمزة، 2026-10-24
+let WED = [], BUD = "all";
+const BUDS = [["all", "الكل"], ["lo", "تحت 6000"], ["mid", "6000 – 10000"], ["hi", "فوق 10000"]];
+const inBud = p => BUD === "all" || (BUD === "lo" ? p.price < 6000 : BUD === "mid" ? p.price <= 10000 && p.price >= 6000 : p.price > 10000);
+const WGIFTS = ["مكنسة كهربائية", "مايكرويف", "كمكم", "توستر", "سشوار", "خلاط يد مع خفاقة وعصارة"];
+function wedSection() {
+  if (!WED.length) return "";
+  const ps = WED.filter(inBud);
+  return `<section class="cat wed" id="c-wedding">
+    <div class="whead"><div class="wkick">💍 عروض العرسان</div><h2>جهّزوا بيتكم كامل.. <span>من مكان واحد</span></h2>
+      <p>8 بكجات كاملة: ثلاجة وغسالة وفرن وطباخ وتلفزيون، ومع كل بكج 6 هدايا</p></div>
+    <div class="wbuds">${BUDS.map(([k, l]) => `<button class="wbud${BUD === k ? " on" : ""}" data-b="${k}">${l}</button>`).join("")}</div>
+    <div class="wscroll">${ps.map(p => `<button class="wcard" data-w="${p.id}" aria-label="بكج ${esc(p.title)} ${p.price} شيكل">
+        <img src="img/wed-${p.id}.webp" alt="عرض العرسان ${esc(p.title)}" loading="lazy">
+        <span class="wmeta"><b>بكج ${esc(p.title)}</b><span class="n">${p.price}${SHK}</span></span></button>`).join("")}</div>
+    ${ps.length > 1 ? `<div class="whint">اسحب لتشوف باقي البكجات ←</div>` : ""}
+  </section>`;
+}
+function openWed(id, push = true) {
+  const p = WED.find(x => x.id === id); if (!p) return;
+  const wa = `https://wa.me/${WA_NUM}?text=${encodeURIComponent(`مرحبا، بدي بكج العرسان ${p.title} بـ ${p.price} ₪ من عروض Black November`)}`;
+  $("#sheet").innerHTML = `<div class="grab"></div><button class="x" onclick="closeSheet()" aria-label="سكّر">×</button>
+    <div class="sh-media"><img class="wimg" src="img/wed-${p.id}.webp" alt="عرض العرسان ${esc(p.title)}"></div>
+    <div class="sh-info"><div class="sh-nm"><b>بكج العرسان ${esc(p.title)}</b></div>
+      <div class="wl-h">البكج بيشمل</div>
+      <ul class="wl">${p.items.map(i => `<li><b>${esc(i.name)}</b>${i.spec ? ` <span>${esc(i.spec)}</span>` : ""}<em>${esc(i.brand)}</em></li>`).join("")}</ul>
+      <div class="wl-h">ومع البكج هدايا 🎁</div>
+      <div class="wg">${WGIFTS.map(g => `<span>${g}</span>`).join("")}</div>
+      <div class="sh-pr"><div><div class="p n">${p.price}${SHK}</div><div class="o n">${p.old}${SHK}</div></div><span class="save">وفّر <span class="n">${p.old - p.price}</span> ₪</span></div>
+      <div class="sh-btns"><a class="wa" href="${wa}" target="_blank" rel="noopener">${WA} بدي هالبكج</a>
+      <button class="share" onclick="shareWed('${p.id}')" aria-label="شارك">${SHARE}</button></div></div>`;
+  $("#pop").classList.add("open");
+  if (push) history.pushState({ w: id }, "", "#w=" + id);
+}
+async function shareWed(id) {
+  const p = WED.find(x => x.id === id), url = location.href.split("#")[0] + "#w=" + id;
+  const text = `بكج العرسان ${p.title} بـ ${p.price} ₪ بدل ${p.old} ₪ · عروض Black November من كهرباء أبو غوش`;
+  if (navigator.share) { try { await navigator.share({ title: "عروض العرسان", text, url }); } catch (e) {} }
+  else window.open(`https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`, "_blank");
+}
 function render(q = "") {
   q = q.trim().toLowerCase();
   const match = it => !q || (it.name + " " + it.size + " " + it.brand + " " + it.model + " " + it.spec).toLowerCase().includes(q);
-  let html = q ? "" : GIFTS;
+  let html = q ? "" : GIFTS + wedSection();
   for (const c of D.cats) {
     const its = D.items.filter(it => it.cat === c.id && match(it)).sort((a, b) => a.price - b.price);
     if (!its.length) continue;
@@ -241,7 +310,7 @@ function render(q = "") {
   watch();
 }
 function chips() {
-  $("#chips").innerHTML = `<button class="chip gift-chip" data-c="gifts">🎁 الهدايا</button>` + D.cats.map(c => `<button class="chip" data-c="${c.id}">${esc(c.label)}</button>`).join("");
+  $("#chips").innerHTML = `<button class="chip gift-chip" data-c="gifts">🎁 الهدايا</button><button class="chip wed-chip" data-c="wedding">💍 العرسان</button>` + D.cats.map(c => `<button class="chip" data-c="${c.id}">${esc(c.label)}</button>`).join("");
   $("#chips").addEventListener("click", e => {
     const b = e.target.closest(".chip"); if (!b) return;
     if ($("#q").value) { $("#q").value = ""; render(); }
@@ -289,16 +358,22 @@ async function share(id) {
   if (navigator.share) { try { await navigator.share({ title: "Black November", text, url }); } catch (e) {} }
   else window.open(`https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`, "_blank");
 }
-window.addEventListener("popstate", () => { if (location.hash.startsWith("#p=")) openSheet(location.hash.slice(3), false); else closeSheet(true); });
-$("#list").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) openSheet(c.dataset.id); });
+window.addEventListener("popstate", () => { if (location.hash.startsWith("#p=")) openSheet(location.hash.slice(3), false); else if (location.hash.startsWith("#w=")) openWed(location.hash.slice(3), false); else closeSheet(true); });
+$("#list").addEventListener("click", e => {
+  const b = e.target.closest(".wbud"); if (b) { BUD = b.dataset.b; document.getElementById("c-wedding").outerHTML = wedSection(); return; }
+  const w = e.target.closest(".wcard"); if (w) { openWed(w.dataset.w); return; }
+  const c = e.target.closest(".card"); if (c) openSheet(c.dataset.id);
+});
 let t; $("#q").addEventListener("input", e => { clearTimeout(t); t = setTimeout(() => render(e.target.value), 150); });
 
 const fitBar = () => { const b = $("#bar").offsetHeight; document.documentElement.style.scrollPaddingTop = (b + 12) + "px"; document.documentElement.style.setProperty("--bar-h", b + "px"); };
 fitBar(); addEventListener("resize", fitBar);
-fetch("data.json?v=" + document.lastModified.replace(/\D/g, "")).then(r => r.json()).then(d => {
-  D = d; d.items.forEach(it => BYID[it.id] = it);
+const V = document.lastModified.replace(/\D/g, "");
+Promise.all([fetch("data.json?v=" + V).then(r => r.json()), fetch("wedding.json?v=" + V).then(r => r.json())]).then(([d, w]) => {
+  D = d; WED = w; d.items.forEach(it => BYID[it.id] = it);
   chips(); fitBar(); render();
   if (location.hash.startsWith("#p=")) openSheet(location.hash.slice(3), false);
+  if (location.hash.startsWith("#w=")) openWed(location.hash.slice(3), false);
 });
 </script>
 </body>
