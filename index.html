@@ -51,7 +51,7 @@
   .cat-h h2 { font-size: 22px; font-weight: 900; }
   .cat-h span { font-size: 13px; color: var(--ink2); }
   /* card: 8px grid · 2 cols, 12px gutter · brand 16 → image 120 → title 2 lines → tags 1 line → price row */
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
   .card { background: var(--card); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; text-align: right; color: var(--ink);
           box-shadow: 0 1px 2px #0000000a, 0 6px 18px #00000010; }
   .brand { height: 26px; display: flex; align-items: center; justify-content: center; }
@@ -100,6 +100,41 @@
   footer b { color: #fff; }
   .x { display: none; }
   .card { cursor: pointer; transition: transform .18s ease, box-shadow .18s ease; }
+
+  /* قائمة الاستفسار: كذا صنف برسالة واتساب وحدة */
+  .acts { display: flex; gap: 6px; flex: none; }
+  .add { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--hair); background: #fff; color: var(--ink); font: 600 22px/1 inherit; display: flex; align-items: center; justify-content: center; padding: 0; transition: background .15s, color .15s, border-color .15s; }
+  .add.on { background: var(--ink); border-color: var(--ink); color: #fff; font-size: 17px; }
+  .addl { grid-column: 1 / -1; height: 48px; border-radius: 14px; border: 1.5px solid var(--hair); background: #fff; color: var(--ink); font: 700 15px inherit; }
+  .addl.on { background: #F1EEE9; border-color: #F1EEE9; }
+  #lbar { position: fixed; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 30; display: flex; align-items: center; gap: 10px;
+          background: var(--ink); color: #fff; border: 0; border-radius: 16px; padding: 0 14px 0 8px; height: 58px; font: inherit; text-align: right;
+          box-shadow: 0 10px 30px rgba(0,0,0,.35); transform: translateY(160%); transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+  #lbar.show { transform: none; }
+  #lbar.bump { animation: bump .35s ease; }
+  @keyframes bump { 40% { transform: scale(1.04); } }
+  #lbar .cnt { background: var(--red); min-width: 30px; height: 30px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; padding: 0 8px; }
+  #lbar .lt { flex: 1; font-size: 14px; line-height: 1.3; } #lbar .lt b { display: block; font-size: 15px; } #lbar .lt span { color: #B9B4AC; font-size: 12.5px; }
+  #lbar .go { background: var(--wa); border-radius: 12px; height: 42px; padding: 0 14px; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 14px; }
+  #lbar .go svg { width: 18px; fill: #fff; }
+  body.has-list footer { padding-bottom: 100px; }
+  .lh { font-size: 20px; font-weight: 800; margin: 4px 0 2px; } .lsub { color: var(--ink2); font-size: 13px; margin-bottom: 12px; }
+  .lrow { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--hair); }
+  .lrow img { width: 56px; height: 56px; object-fit: contain; border-radius: 10px; background: #F6F4F0; flex: none; }
+  .lrow .li { flex: 1; min-width: 0; font-size: 14px; line-height: 1.4; } .lrow .li b { font-weight: 700; } .lrow .li small { display: block; color: var(--ink2); font-size: 12px; }
+  .lrow .lp { font-weight: 700; color: var(--red-ink); font-size: 16px; white-space: nowrap; }
+  .lrow .lx { width: 34px; height: 34px; border-radius: 50%; border: 0; background: #F1EEE9; color: var(--ink2); font-size: 15px; flex: none; }
+  .ltot { display: flex; justify-content: space-between; align-items: baseline; margin: 14px 0 16px; font-size: 15px; } .ltot b { font-size: 26px; color: var(--ink); } .ltot small { color: var(--ink2); font-size: 12px; }
+  .lclear { display: block; margin: 12px auto 0; background: none; border: 0; color: var(--ink2); font: 500 13px inherit; text-decoration: underline; }
+  @media (max-width: 759px) {
+    .card .wa, .add { width: 36px; height: 36px; } .card .wa svg { width: 18px; } .add { font-size: 20px; } .add.on { font-size: 15px; }
+    .acts { gap: 5px; } .card .foot { gap: 4px; }
+  }
+  @media (min-width: 760px) {
+    #lbar { left: 50%; right: auto; width: 460px; margin-left: -230px; bottom: 20px; cursor: pointer; }
+    .add, .addl, .lx, .lclear { cursor: pointer; }
+    .add:hover { border-color: var(--ink); }
+  }
 
   /* ── desktop & tablet ── */
   @media (min-width: 760px) {
@@ -208,6 +243,8 @@
     <div>توصيل لكل المناطق</div>
   </footer>
 
+  <button id="lbar" onclick="openList()" aria-label="افتح قائمتك"><span class="cnt n">0</span><span class="lt"></span><span class="go"></span></button>
+
   <div id="pop"><div class="veil" onclick="closeSheet()"></div><div class="sheet" id="sheet"></div></div>
 
 <script>
@@ -235,7 +272,7 @@ function card(it) {
     ${it.spec ? `<div class="tags">${esc(it.spec)}</div>` : ""}
     <div class="foot">
       <div class="pr"><span class="p n">${it.price}${SHK}</span><span class="o n">${it.old}${SHK}</span></div>
-      <a class="wa" href="${waLink(it)}" target="_blank" rel="noopener" aria-label="اطلب بالواتساب" onclick="event.stopPropagation()">${WA}</a>
+      <div class="acts">${addBtn("p:" + it.id)}<a class="wa" href="${waLink(it)}" target="_blank" rel="noopener" aria-label="اطلب بالواتساب" onclick="event.stopPropagation()">${WA}</a></div>
     </div>
   </article>`;
 }
@@ -284,7 +321,7 @@ function openWed(id, push = true) {
       <div class="wg">${WGIFTS.map(g => `<span>${g}</span>`).join("")}</div>
       <div class="sh-pr"><div><div class="p n">${p.price}${SHK}</div><div class="o n">${p.old}${SHK}</div></div><span class="save">وفّر <span class="n">${p.old - p.price}</span> ₪</span></div>
       <div class="sh-btns"><a class="wa" href="${wa}" target="_blank" rel="noopener">${WA} بدي هالبكج</a>
-      <button class="share" onclick="shareWed('${p.id}')" aria-label="شارك">${SHARE}</button></div></div>`;
+      <button class="share" onclick="shareWed('${p.id}')" aria-label="شارك">${SHARE}</button>${addBig("w:" + p.id)}</div></div>`;
   $("#pop").classList.add("open");
   if (push) history.pushState({ w: id }, "", "#w=" + id);
 }
@@ -293,6 +330,55 @@ async function shareWed(id) {
   const text = `بكج العرسان ${p.title} بـ ${p.price} ₪ بدل ${p.old} ₪ · عروض Black November من كهرباء أبو غوش`;
   if (navigator.share) { try { await navigator.share({ title: "عروض العرسان", text, url }); } catch (e) {} }
   else window.open(`https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`, "_blank");
+}
+// قائمة الاستفسار: الزبون بيجمع كذا صنف وبيبعتهم برسالة واتساب وحدة (حمزة، 2026-10-24)
+let LIST = [];
+try { LIST = JSON.parse(localStorage.getItem("bn-list") || "[]"); } catch (e) {}
+const inList = k => LIST.includes(k);
+const addBtn = k => `<button class="add${inList(k) ? " on" : ""}" data-k="${k}" aria-label="ضيف للقائمة">${inList(k) ? "✓" : "＋"}</button>`;
+const addBig = k => `<button class="addl${inList(k) ? " on" : ""}" data-k="${k}" onclick="toggleList('${k}')">${inList(k) ? "✓ بقائمتك" : "＋ ضيفه لقائمتك واسأل عن كذا صنف مع بعض"}</button>`;
+function lget(k) {
+  const [t, id] = k.split(":");
+  if (t === "w") { const p = WED.find(x => x.id === id); return p && { name: `بكج العرسان ${p.title}`, sub: "عروض العرسان", model: "", price: p.price, img: `img/wed-${p.id}.webp` }; }
+  const it = BYID[id]; return it && { name: title(it), sub: it.spec, model: it.model, price: it.price, img: `img/${it.img}-s.webp` };
+}
+const lItems = () => LIST.map(k => [k, lget(k)]).filter(x => x[1]);
+function saveList() { try { localStorage.setItem("bn-list", JSON.stringify(LIST)); } catch (e) {} }
+function toggleList(k) {
+  const add = !inList(k);
+  LIST = add ? [...LIST, k] : LIST.filter(x => x !== k); saveList();
+  document.querySelectorAll(`[data-k="${k}"]`).forEach(b => {
+    b.classList.toggle("on", add);
+    b.textContent = b.classList.contains("add") ? (add ? "✓" : "＋") : (add ? "✓ بقائمتك" : "＋ ضيفه لقائمتك واسأل عن كذا صنف مع بعض");
+  });
+  lbar(add);
+}
+function lbar(bump) {
+  const its = lItems(), b = $("#lbar"), n = its.length;
+  b.classList.toggle("show", n > 0); document.body.classList.toggle("has-list", n > 0);
+  if (!n) return;
+  b.querySelector(".cnt").textContent = n;
+  b.querySelector(".lt").innerHTML = `<b>${n === 1 ? "صنف واحد" : n === 2 ? "صنفين" : n + " أصناف"} بقائمتك</b><span>المجموع <span class="n">${its.reduce((s, [, x]) => s + x.price, 0)}</span> ₪</span>`;
+  if (bump) { b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump"); }
+}
+function listWa() {
+  const its = lItems().map(([, x]) => x);
+  const lines = its.map((x, i) => `${i + 1}. ${x.name}${x.model ? ` (موديل ${x.model})` : ""} · ${x.price} ₪`);
+  const msg = `مرحبا، بدي أسأل عن هدول من عروض Black November:\n${lines.join("\n")}\nالمجموع: ${its.reduce((s, x) => s + x.price, 0)} ₪`;
+  return `https://wa.me/${WA_NUM}?text=${encodeURIComponent(msg)}`;
+}
+function openList(push = true) {
+  const its = lItems();
+  if (!its.length) { closeSheet(); return; }
+  $("#sheet").innerHTML = `<div class="grab"></div><button class="x" onclick="closeSheet()" aria-label="سكّر">×</button>
+    <div class="sh-info lsheet"><div class="lh">قائمتك</div><div class="lsub">ابعتها برسالة وحدة، وفريق أبو غوش بيرد عليك بكل التفاصيل</div>
+    ${its.map(([k, x]) => `<div class="lrow"><img src="${x.img}" alt=""><div class="li"><b>${esc(x.name)}</b>${x.sub || x.model ? `<small>${esc([x.sub, x.model && "موديل " + x.model].filter(Boolean).join(" · "))}</small>` : ""}</div>
+      <span class="lp n">${x.price}${SHK}</span><button class="lx" onclick="toggleList('${k}');openList(false)" aria-label="شيل من القائمة">✕</button></div>`).join("")}
+    <div class="ltot"><span>المجموع <small>(تقريبي)</small></span><b class="n">${its.reduce((s, [, x]) => s + x.price, 0)}${SHK}</b></div>
+    <a class="wa" style="height:52px;font-size:16px;border-radius:14px" href="${listWa()}" target="_blank" rel="noopener">${WA} ابعت القائمة عالواتس</a>
+    <button class="lclear" onclick="if(confirm('بدك تفضّي القائمة؟')){LIST.forEach(k=>toggleList(k));closeSheet()}">فضّي القائمة</button></div>`;
+  $("#pop").classList.add("open");
+  if (push) history.pushState({ l: 1 }, "", "#list");
 }
 function render(q = "") {
   q = q.trim().toLowerCase();
@@ -346,20 +432,21 @@ function openSheet(id, push = true) {
     <div class="sh-pr"><div><div class="p n">${it.price}${SHK}</div><div class="o n">${it.old}${SHK}</div></div>
       <span class="save">وفّر <span class="n">${it.old - it.price}</span> ₪</span></div>
     <div class="sh-btns"><a class="wa" href="${waLink(it)}" target="_blank" rel="noopener">${WA} اطلب بالواتساب</a>
-      <button class="share" onclick="share('${it.id}')" aria-label="شارك">${SHARE}</button></div></div>`;
+      <button class="share" onclick="share('${it.id}')" aria-label="شارك">${SHARE}</button>${addBig("p:" + it.id)}</div></div>`;
   $("#pop").classList.add("open");
   if (push) history.pushState({ p: id }, "", "#p=" + id);
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#pop").classList.contains("open")) closeSheet(); });
-function closeSheet(pop) { $("#pop").classList.remove("open"); if (!pop && location.hash.startsWith("#p=")) history.back(); }
+function closeSheet(pop) { $("#pop").classList.remove("open"); if (!pop && /^#(p=|w=|list)/.test(location.hash)) history.back(); }
 async function share(id) {
   const it = BYID[id], url = location.href.split("#")[0] + "#p=" + id;
   const text = `${title(it)} بـ ${it.price} ₪ بدل ${it.old} ₪ · عروض Black November من كهرباء أبو غوش`;
   if (navigator.share) { try { await navigator.share({ title: "Black November", text, url }); } catch (e) {} }
   else window.open(`https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`, "_blank");
 }
-window.addEventListener("popstate", () => { if (location.hash.startsWith("#p=")) openSheet(location.hash.slice(3), false); else if (location.hash.startsWith("#w=")) openWed(location.hash.slice(3), false); else closeSheet(true); });
+window.addEventListener("popstate", () => { if (location.hash.startsWith("#p=")) openSheet(location.hash.slice(3), false); else if (location.hash.startsWith("#w=")) openWed(location.hash.slice(3), false); else if (location.hash === "#list") openList(false); else closeSheet(true); });
 $("#list").addEventListener("click", e => {
+  const a = e.target.closest(".add"); if (a) { toggleList(a.dataset.k); return; }
   const b = e.target.closest(".wbud"); if (b) { BUD = b.dataset.b; document.getElementById("c-wedding").outerHTML = wedSection(); return; }
   const w = e.target.closest(".wcard"); if (w) { openWed(w.dataset.w); return; }
   const c = e.target.closest(".card"); if (c) openSheet(c.dataset.id);
@@ -368,12 +455,15 @@ let t; $("#q").addEventListener("input", e => { clearTimeout(t); t = setTimeout(
 
 const fitBar = () => { const b = $("#bar").offsetHeight; document.documentElement.style.scrollPaddingTop = (b + 12) + "px"; document.documentElement.style.setProperty("--bar-h", b + "px"); };
 fitBar(); addEventListener("resize", fitBar);
+$("#lbar .go").innerHTML = WA + "اسأل عالواتس";
 const V = document.lastModified.replace(/\D/g, "");
 Promise.all([fetch("data.json?v=" + V).then(r => r.json()), fetch("wedding.json?v=" + V).then(r => r.json())]).then(([d, w]) => {
   D = d; WED = w; d.items.forEach(it => BYID[it.id] = it);
   chips(); fitBar(); render();
   if (location.hash.startsWith("#p=")) openSheet(location.hash.slice(3), false);
   if (location.hash.startsWith("#w=")) openWed(location.hash.slice(3), false);
+  if (location.hash === "#list") openList(false);
+  lbar();
 });
 </script>
 </body>
