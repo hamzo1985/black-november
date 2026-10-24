@@ -125,6 +125,7 @@
   .lrow .lp { font-weight: 700; color: var(--red-ink); font-size: 16px; white-space: nowrap; }
   .lrow .lx { width: 34px; height: 34px; border-radius: 50%; border: 0; background: #F1EEE9; color: var(--ink2); font-size: 15px; flex: none; }
   .ltot { display: flex; justify-content: space-between; align-items: baseline; margin: 14px 0 16px; font-size: 15px; } .ltot b { font-size: 26px; color: var(--ink); } .ltot small { color: var(--ink2); font-size: 12px; }
+  .lclear.sure { color: var(--red-ink); font-weight: 700; }
   .lclear { display: block; margin: 12px auto 0; background: none; border: 0; color: var(--ink2); font: 500 13px inherit; text-decoration: underline; }
   @media (max-width: 759px) {
     .card .wa, .add { width: 36px; height: 36px; } .card .wa svg { width: 18px; } .add { font-size: 20px; } .add.on { font-size: 15px; }
@@ -376,9 +377,14 @@ function openList(push = true) {
       <span class="lp n">${x.price}${SHK}</span><button class="lx" onclick="toggleList('${k}');openList(false)" aria-label="شيل من القائمة">✕</button></div>`).join("")}
     <div class="ltot"><span>المجموع <small>(تقريبي)</small></span><b class="n">${its.reduce((s, [, x]) => s + x.price, 0)}${SHK}</b></div>
     <a class="wa" style="height:52px;font-size:16px;border-radius:14px" href="${listWa()}" target="_blank" rel="noopener">${WA} ابعت القائمة عالواتس</a>
-    <button class="lclear" onclick="if(confirm('بدك تفضّي القائمة؟')){LIST.forEach(k=>toggleList(k));closeSheet()}">فضّي القائمة</button></div>`;
+    <button class="lclear" onclick="clearList(this)">فضّي القائمة</button></div>`;
   $("#pop").classList.add("open");
   if (push) history.pushState({ l: 1 }, "", "#list");
+}
+// confirm() بينحجب بمتصفح الواتساب/إنستغرام، فالتأكيد بكبسة تانية
+function clearList(b) {
+  if (!b.classList.contains("sure")) { b.classList.add("sure"); b.textContent = "متأكد؟ اكبس كمان مرة لتفضّيها"; return; }
+  [...LIST].forEach(toggleList); closeSheet();
 }
 function render(q = "") {
   q = q.trim().toLowerCase();
