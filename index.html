@@ -105,7 +105,8 @@
   footer { background: var(--bg); padding: 30px 18px 40px; text-align: center; color: var(--mute); font-size: 13px; line-height: 1.9; border-top: 1px solid var(--line); }
   footer .ag { height: 44px; margin: 0 auto 12px; }
   footer b { color: #fff; }
-  .x { display: none; }
+  .x { display: flex; position: absolute; top: 10px; right: 12px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; border: 0; background: #F1EEE9; color: var(--ink); font-size: 20px; line-height: 1; align-items: center; justify-content: center; padding: 0; }
+  .sheet.drag { transition: none; }
   .card { cursor: pointer; transition: transform .18s ease, box-shadow .18s ease; }
 
   /* قائمة الاستفسار: كذا صنف برسالة واتساب وحدة */
@@ -169,7 +170,7 @@
              transform: translate(-50%, -47%) scale(.98); opacity: 0; pointer-events: none; transition: transform .22s ease, opacity .22s ease; }
     .open .sheet { transform: translate(-50%, -50%); opacity: 1; pointer-events: auto; }
     .grab { display: none; }
-    .x { display: flex; position: absolute; top: 14px; left: 14px; width: 36px; height: 36px; border-radius: 50%; background: #F1EEE9; font-size: 22px; line-height: 1;
+    .x { display: flex; position: absolute; top: 14px; left: 14px; right: auto; width: 36px; height: 36px; border-radius: 50%; background: #F1EEE9; font-size: 22px; line-height: 1;
          align-items: center; justify-content: center; color: var(--ink); }
     .sh-pic { height: 380px; } .sh-pic img { max-height: 380px; }
     .sh-nm { font-size: 24px; }
@@ -344,7 +345,7 @@ let LIST = [];
 try { LIST = JSON.parse(localStorage.getItem("bn-list") || "[]"); } catch (e) {}
 const inList = k => LIST.includes(k);
 const addBtn = k => `<button class="add${inList(k) ? " on" : ""}" data-k="${k}" aria-label="ضيف للقائمة">${inList(k) ? "✓" : "＋"}</button>`;
-const addBig = k => `<button class="addl${inList(k) ? " on" : ""}" data-k="${k}" onclick="toggleList('${k}')">${inList(k) ? "✓ بقائمتك" : "＋ ضيفه لقائمتك واسأل عن كذا صنف مع بعض"}</button>`;
+const addBig = k => `<button class="addl${inList(k) ? " on" : ""}" data-k="${k}" onclick="toggleList('${k}')">${inList(k) ? "✓ بقائمتك" : "＋ ضيفه لقائمتك واسأل عن كذا صنف"}</button>`;
 function lget(k) {
   const [t, id] = k.split(":");
   if (t === "w") { const p = WED.find(x => x.id === id); return p && { name: `بكج العرسان ${p.title}`, sub: "عروض العرسان", model: "", price: p.price, img: `img/wed-${p.id}.webp` }; }
@@ -357,7 +358,7 @@ function toggleList(k) {
   LIST = add ? [...LIST, k] : LIST.filter(x => x !== k); saveList();
   document.querySelectorAll(`[data-k="${k}"]`).forEach(b => {
     b.classList.toggle("on", add);
-    b.textContent = b.classList.contains("add") ? (add ? "✓" : "＋") : (add ? "✓ بقائمتك" : "＋ ضيفه لقائمتك واسأل عن كذا صنف مع بعض");
+    b.textContent = b.classList.contains("add") ? (add ? "✓" : "＋") : (add ? "✓ بقائمتك" : "＋ ضيفه لقائمتك واسأل عن كذا صنف");
   });
   lbar(add);
 }
@@ -464,8 +465,36 @@ function openSheet(id, push = true) {
   $("#pop").classList.add("open");
   if (push) history.pushState({ p: id }, "", "#p=" + id);
 }
+// اسحب البوب أب لتحت لتسكّره (من فوق، أو من أي مكان إذا المحتوى بأوله)
+(() => {
+  const sh = $("#sheet"); let y0 = null, dy = 0, t0 = 0;
+  sh.addEventListener("touchstart", e => {
+    if (innerWidth >= 760 || e.target.closest(".wscroll")) return;
+    y0 = e.touches[0].clientY; dy = 0; t0 = Date.now();
+  }, { passive: true });
+  sh.addEventListener("touchmove", e => {
+    if (y0 === null) return;
+    const d = e.touches[0].clientY - y0;
+    if (sh.scrollTop > 0 || d < 0) { if (!dy) { y0 = null; } return; }
+    dy = d; sh.classList.add("drag"); sh.style.transform = `translateY(${dy}px)`;
+    $("#pop .veil").style.opacity = Math.max(0, 1 - dy / 400);
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  sh.addEventListener("touchend", () => {
+    if (y0 === null) return; y0 = null;
+    sh.classList.remove("drag"); $("#pop .veil").style.opacity = "";
+    const fast = dy > 40 && dy / (Date.now() - t0) > .5;
+    if (dy > 110 || fast) { sh.style.transform = "translateY(105%)"; closeSheet(); setTimeout(() => sh.style.transform = "", 300); }
+    else sh.style.transform = "";
+  });
+})();
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#pop").classList.contains("open")) closeSheet(); });
-function closeSheet(pop) { $("#pop").classList.remove("open"); if (!pop && /^#(p=|w=|list)/.test(location.hash)) history.back(); }
+function closeSheet(pop) {
+  $("#pop").classList.remove("open");
+  if (pop || !/^#(p=|w=|list)/.test(location.hash)) return;
+  if (history.state && (history.state.p || history.state.w || history.state.l)) history.back();
+  else history.replaceState(null, "", location.pathname + location.search);   // دخل من رابط مباشر: ما نطلّعه من الموقع
+}
 async function share(id) {
   const it = BYID[id], url = location.href.split("#")[0] + "#p=" + id;
   const text = `${title(it)} بـ ${it.price} ₪ بدل ${it.old} ₪ · عروض Black November من كهرباء أبو غوش`;
