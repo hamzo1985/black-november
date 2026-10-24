@@ -375,7 +375,7 @@ function openList(push = true) {
     <div class="sh-info lsheet"><div class="lh">قائمتك</div><div class="lsub">ابعتها برسالة وحدة، وفريق أبو غوش بيرد عليك بكل التفاصيل</div>
     ${its.map(([k, x]) => `<div class="lrow"><img src="${x.img}" alt=""><div class="li"><b>${esc(x.name)}</b>${x.sub || x.model ? `<small>${esc([x.sub, x.model && "موديل " + x.model].filter(Boolean).join(" · "))}</small>` : ""}</div>
       <span class="lp n">${x.price}${SHK}</span><button class="lx" onclick="toggleList('${k}');openList(false)" aria-label="شيل من القائمة">✕</button></div>`).join("")}
-    <div class="ltot"><span>المجموع <small>(تقريبي)</small></span><b class="n">${its.reduce((s, [, x]) => s + x.price, 0)}${SHK}</b></div>
+    <div class="ltot"><span>المجموع</span><b class="n">${its.reduce((s, [, x]) => s + x.price, 0)}${SHK}</b></div>
     <a class="wa" style="height:52px;font-size:16px;border-radius:14px" href="${listWa()}" target="_blank" rel="noopener">${WA} ابعت القائمة عالواتس</a>
     <button class="lclear" onclick="clearList(this)">فضّي القائمة</button></div>`;
   $("#pop").classList.add("open");
