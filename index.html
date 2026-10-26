@@ -222,8 +222,24 @@
   .wl li { display: flex; align-items: baseline; gap: 6px; font-size: 14px; background: #F6F4F0; border-radius: 10px; padding: 8px 12px; }
   .wl li span { color: #4A4641; } .wl li em { margin-inline-start: auto; font-style: normal; font-size: 12px; color: var(--ink2); }
   .wg { display: flex; flex-wrap: wrap; gap: 6px; } .wg span { font-size: 12.5px; padding: 5px 10px; border-radius: 16px; background: #FDECEC; color: var(--red-ink); }
+  /* HIGOLD outdoor sets */
+  section.hg { padding-top: 26px; }
+  .wkick.hgk { color: #2f4f37; background: #dcebdf; }
+  .hgperks { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+  .hgperks span { font-size: 12.5px; padding: 5px 10px; border-radius: 16px; background: #fff; border: 1px solid var(--hair); }
+  .hgperks span b { color: var(--red-ink); }
+  .wcard .wmeta small { display: block; font-size: 12px; color: #b9b2a8; font-weight: 400; margin-top: 2px; }
+  .hgg { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .hgg button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: 14px; background: #F6F4F0; border: 2px solid transparent; font-size: 13px; color: var(--ink); }
+  #sheet .hgg button img { height: 58px; width: auto; max-width: 100%; object-fit: contain; border-radius: 0; margin: 0; }
+  .hgg button em { font-style: normal; font-size: 11.5px; color: var(--ink2); }
+  .hgg button.on { border-color: var(--red); background: #FDECEC; }
+  .hgnote { font-size: 12.5px; color: var(--ink2); margin-top: 6px; }
+  .hgfree { margin-top: 12px; font-size: 13.5px; background: #dcebdf; color: #2f4f37; border-radius: 10px; padding: 8px 12px; font-weight: 700; }
+  .chip.hg-chip { background: #1f2a22; color: #cfe3d3; } .chip.hg-chip.on { background: var(--red); color: #fff; }
   @media (min-width: 760px) {
-    section.cat.wed { display: block; }
+    section.cat.wed, section.cat.hg { display: block; }
+    .hgg { grid-template-columns: repeat(4, 1fr); }
     .wscroll { display: grid; grid-template-columns: repeat(4, 1fr); overflow: visible; margin: 0; padding: 4px 0 12px; }
     .wcard { flex: none; } .wcard:hover { transform: translateY(-3px); } .whint { display: none; }
     .whead h2 { font-size: 32px; }
@@ -341,6 +357,59 @@ async function shareWed(id) {
   if (navigator.share) { try { await navigator.share({ title: "عروض العرسان", text, url }); } catch (e) {} }
   else window.open(`https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`, "_blank");
 }
+// عروض HIGOLD: 10 أطقم خارجية، خصم 50% (سعر الإكسل = سعر العرض)، ومع كل طقم هدية (Wing SE هديتين) + توصيل وتركيب مجاناً — حمزة، 2026-10-26
+let HG = [], HGT = "all", HGSEL = [];
+const HGTS = [["all", "الكل"], ["seat", "جلسات"], ["corner", "زوايا"], ["dining", "سفرة"], ["pergola", "برجولا"]];
+const HGG = [["43e79q", "تلفزيون Hisense", "43 إنش سمارت"], ["falcon-inverter-16", "مكيف Family", "1.25 حصان"], ["p610flg", "غسالة TCL", "10 كيلو"], ["s30-pro-plus", "مكنسة روبوت", "Deerma"]];
+const hgName = p => `${p.pre} ${p.model}`;
+const LTR = t => t.replace(/([A-Za-z][A-Za-z0-9 .]*[A-Za-z0-9])/g, '<span dir="ltr" style="unicode-bidi:isolate">$1</span>');
+function hgSection() {
+  if (!HG.length) return "";
+  const ps = HG.filter(p => HGT === "all" || p.type === HGT);
+  return `<section class="cat wed hg" id="c-higold">
+    <div class="whead"><div class="wkick hgk">🌿 عروض <span dir="ltr" style="unicode-bidi:isolate">HIGOLD</span> الخارجية</div><h2>طقمك الخارجي بنص السعر.. <span>والهدية علينا</span></h2>
+      <p>10 أطقم ألمنيوم: جلسات وزوايا وسفرة وبرجولا، ومع كل طقم اختار هديتك</p>
+      <div class="hgperks"><span>خصم <b class="n">50%</b></span><span>🎁 اختار هديتك</span><span>🚚 توصيل وتركيب مجاناً</span></div></div>
+    <div class="wbuds">${HGTS.map(([k, l]) => `<button class="wbud hgt${HGT === k ? " on" : ""}" data-t="${k}">${l}</button>`).join("")}</div>
+    <div class="wscroll">${ps.map(p => `<button class="wcard" data-h="${p.id}" aria-label="${esc(hgName(p))} ${p.price} شيكل">
+        <img src="img/hg-${p.id}.webp" alt="${esc(hgName(p))} من HIGOLD" loading="lazy">
+        <span class="wmeta"><b>${LTR(esc(hgName(p)))}<small>${p.gifts > 1 ? "ومعه هديتين 🎁🎁" : "ومعه هدية 🎁"}</small></b><span class="n">${p.price}${SHK}</span></span></button>`).join("")}</div>
+    ${ps.length > 1 ? `<div class="whint">اسحب لتشوف باقي الأطقم ←</div>` : ""}
+  </section>`;
+}
+function hgPick(g) {
+  const p = HG.find(x => x.id === $("#sheet").dataset.h); if (!p) return;
+  HGSEL = HGSEL.includes(g) ? HGSEL.filter(x => x !== g) : [...HGSEL, g].slice(-p.gifts);
+  document.querySelectorAll(".hgg button").forEach(b => b.classList.toggle("on", HGSEL.includes(b.dataset.g)));
+  $("#sheet .wa").href = hgWa(p);
+}
+function hgWa(p) {
+  const gs = HGSEL.map(g => HGG.find(x => x[0] === g)[1]);
+  return `https://wa.me/${WA_NUM}?text=${encodeURIComponent(`مرحبا، بدي ${hgName(p)} من HIGOLD (${p.code}) بـ ${p.price} ₪ من عروض Black November` + (gs.length ? `، والهدية: ${gs.join(" و")}` : ""))}`;
+}
+function openHg(id, push = true) {
+  const p = HG.find(x => x.id === id); if (!p) return;
+  HGSEL = [];
+  $("#sheet").dataset.h = id;
+  $("#sheet").innerHTML = `<div class="grab"></div><button class="x" onclick="closeSheet()" aria-label="سكّر">×</button>
+    <div class="sh-media"><img class="wimg" src="img/hg-${p.id}.webp" alt="${esc(hgName(p))} من HIGOLD"></div>
+    <div class="sh-info"><div class="sh-nm"><b>${LTR(esc(hgName(p)))}</b> <span dir="ltr" style="unicode-bidi:isolate">HIGOLD</span></div>
+      <div class="hgnote">${esc(p.desc)} · موديل <span class="n">${p.code}</span></div>
+      <div class="wl-h">${p.gifts > 1 ? "اختار هديتين 🎁🎁" : "اختار هديتك 🎁"}</div>
+      <div class="hgg">${HGG.map(([g, n, sp]) => `<button data-g="${g}" onclick="hgPick('${g}')"><img src="img/hgg-${g}.webp" alt="${n}" loading="lazy"><b>${LTR(n)}</b><em>${LTR(sp)}</em></button>`).join("")}</div>
+      <div class="hgfree">🚚 التوصيل والتركيب مجاناً</div>
+      <div class="sh-pr"><div><div class="p n">${p.price}${SHK}</div><div class="o n">${p.old}${SHK}</div></div><span class="save">وفّر <span class="n">${p.old - p.price}</span> ₪</span></div>
+      <div class="sh-btns"><a class="wa" href="${hgWa(p)}" target="_blank" rel="noopener">${WA} بدي هالطقم</a>
+      <button class="share" onclick="shareHg('${p.id}')" aria-label="شارك">${SHARE}</button>${addBig("h:" + p.id)}</div></div>`;
+  $("#pop").classList.add("open");
+  if (push) history.pushState({ h: id }, "", "#h=" + id);
+}
+async function shareHg(id) {
+  const p = HG.find(x => x.id === id), url = location.href.split("#")[0] + "#h=" + id;
+  const text = `${hgName(p)} من HIGOLD بـ ${p.price} ₪ بدل ${p.old} ₪ + هدية وتوصيل وتركيب مجاناً · عروض Black November من كهرباء أبو غوش`;
+  if (navigator.share) { try { await navigator.share({ title: "عروض HIGOLD", text, url }); } catch (e) {} }
+  else window.open(`https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`, "_blank");
+}
 // قائمة الاستفسار: الزبون بيجمع كذا صنف وبيبعتهم برسالة واتساب وحدة (حمزة، 2026-10-24)
 let LIST = [];
 try { LIST = JSON.parse(localStorage.getItem("bn-list") || "[]"); } catch (e) {}
@@ -349,6 +418,7 @@ const addBtn = k => `<button class="add${inList(k) ? " on" : ""}" data-k="${k}" 
 const addBig = k => `<button class="addl${inList(k) ? " on" : ""}" data-k="${k}" onclick="toggleList('${k}')">${inList(k) ? "✓ بقائمتك" : "＋ ضيفه لقائمتك واسأل عن كذا صنف"}</button>`;
 function lget(k) {
   const [t, id] = k.split(":");
+  if (t === "h") { const p = HG.find(x => x.id === id); return p && { name: `${hgName(p)} · HIGOLD`, sub: "عروض HIGOLD + هدية", model: p.code, price: p.price, img: `img/hg-${p.id}.webp` }; }
   if (t === "w") { const p = WED.find(x => x.id === id); return p && { name: `بكج العرسان ${p.title}`, sub: "عروض العرسان", model: "", price: p.price, img: `img/wed-${p.id}.webp` }; }
   const it = BYID[id]; return it && { name: title(it), sub: it.spec, model: it.model, price: it.price, img: `img/${it.img}-s.webp` };
 }
@@ -413,7 +483,7 @@ function render(q = "") {
   const ws = words(q);
   const match = it => !ws.length || ws.every(w => hay(it).includes(w));
   const qn = norm(q);
-  let html = !q ? GIFTS + wedSection() : (/هدي|سحب|ايفون|iphone|بلايستيشن|ps5/.test(qn) ? GIFTS : "") + (/عرس|عريس|عروس|بكج/.test(qn) ? wedSection() : "");
+  let html = !q ? GIFTS + wedSection() + hgSection() : (/هدي|سحب|ايفون|iphone|بلايستيشن|ps5/.test(qn) ? GIFTS : "") + (/عرس|عريس|عروس|بكج/.test(qn) ? wedSection() : "") + (/higold|هاي ?جولد|هايجولد|طقم|جلس|خارجي|برجول|سفر|حديق|زاوي/.test(qn) ? hgSection() : "");
   for (const c of D.cats) {
     const its = D.items.filter(it => it.cat === c.id && match(it)).sort((a, b) => a.price - b.price);
     if (!its.length) continue;
@@ -426,7 +496,7 @@ function render(q = "") {
   watch();
 }
 function chips() {
-  $("#chips").innerHTML = `<button class="chip gift-chip" data-c="gifts">🎁 الهدايا</button><button class="chip wed-chip" data-c="wedding">💍 العرسان</button>` + D.cats.map(c => `<button class="chip" data-c="${c.id}">${esc(c.label)}</button>`).join("");
+  $("#chips").innerHTML = `<button class="chip gift-chip" data-c="gifts">🎁 الهدايا</button><button class="chip wed-chip" data-c="wedding">💍 العرسان</button><button class="chip hg-chip" data-c="higold">🌿 HIGOLD</button>` + D.cats.map(c => `<button class="chip" data-c="${c.id}">${esc(c.label)}</button>`).join("");
   $("#chips").addEventListener("click", e => {
     const b = e.target.closest(".chip"); if (!b) return;
     if ($("#q").value) { $("#q").value = ""; render(); }
@@ -502,11 +572,12 @@ async function share(id) {
   if (navigator.share) { try { await navigator.share({ title: "Black November", text, url }); } catch (e) {} }
   else window.open(`https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`, "_blank");
 }
-window.addEventListener("popstate", () => { if (location.hash.startsWith("#p=")) openSheet(location.hash.slice(3), false); else if (location.hash.startsWith("#w=")) openWed(location.hash.slice(3), false); else if (location.hash === "#list") openList(false); else closeSheet(true); });
+window.addEventListener("popstate", () => { if (location.hash.startsWith("#p=")) openSheet(location.hash.slice(3), false); else if (location.hash.startsWith("#w=")) openWed(location.hash.slice(3), false); else if (location.hash.startsWith("#h=")) openHg(location.hash.slice(3), false); else if (location.hash === "#list") openList(false); else closeSheet(true); });
 $("#list").addEventListener("click", e => {
   const a = e.target.closest(".add"); if (a) { toggleList(a.dataset.k); return; }
-  const b = e.target.closest(".wbud"); if (b) { BUD = b.dataset.b; document.getElementById("c-wedding").outerHTML = wedSection(); return; }
-  const w = e.target.closest(".wcard"); if (w) { openWed(w.dataset.w); return; }
+  const b = e.target.closest(".wbud:not(.hgt)"); if (b) { BUD = b.dataset.b; document.getElementById("c-wedding").outerHTML = wedSection(); return; }
+  const ht = e.target.closest(".hgt"); if (ht) { HGT = ht.dataset.t; document.getElementById("c-higold").outerHTML = hgSection(); return; }
+  const w = e.target.closest(".wcard"); if (w) { w.dataset.h ? openHg(w.dataset.h) : openWed(w.dataset.w); return; }
   const c = e.target.closest(".card"); if (c) openSheet(c.dataset.id);
 });
 let t; $("#q").addEventListener("input", e => { clearTimeout(t); t = setTimeout(() => render(e.target.value), 150); });
@@ -515,14 +586,15 @@ const fitBar = () => { const b = $("#bar").offsetHeight; document.documentElemen
 fitBar(); addEventListener("resize", fitBar);
 $("#lbar .go").innerHTML = WA + "اسأل عالواتس";
 const V = document.lastModified.replace(/\D/g, "");
-Promise.all([fetch("data.json?v=" + V).then(r => r.json()), fetch("wedding.json?v=" + V).then(r => r.json()).catch(() => [])]).catch(() => {
+Promise.all([fetch("data.json?v=" + V).then(r => r.json()), fetch("wedding.json?v=" + V).then(r => r.json()).catch(() => []), fetch("higold.json?v=" + V).then(r => r.json()).catch(() => [])]).catch(() => {
   $("#list").innerHTML = `<div class="empty">النت ضعيف شوي.. <button class="hero-go" style="position:static;margin-top:14px" onclick="location.reload()">جرّب كمان مرة</button></div>`;
   return new Promise(() => {});
-}).then(([d, w]) => {
-  D = d; WED = w; d.items.forEach(it => BYID[it.id] = it);
+}).then(([d, w, h]) => {
+  D = d; WED = w; HG = h; d.items.forEach(it => BYID[it.id] = it);
   chips(); fitBar(); render();
   if (location.hash.startsWith("#p=")) openSheet(location.hash.slice(3), false);
   if (location.hash.startsWith("#w=")) openWed(location.hash.slice(3), false);
+  if (location.hash.startsWith("#h=")) openHg(location.hash.slice(3), false);
   if (location.hash === "#list") openList(false);
   lbar();
 });
