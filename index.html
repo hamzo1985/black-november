@@ -483,7 +483,7 @@ function render(q = "") {
   const ws = words(q);
   const match = it => !ws.length || ws.every(w => hay(it).includes(w));
   const qn = norm(q);
-  let html = !q ? GIFTS + wedSection() + hgSection() : (/هدي|سحب|ايفون|iphone|بلايستيشن|ps5/.test(qn) ? GIFTS : "") + (/عرس|عريس|عروس|بكج/.test(qn) ? wedSection() : "") + (/higold|هاي ?جولد|هايجولد|طقم|جلس|خارجي|برجول|سفر|حديق|زاوي/.test(qn) ? hgSection() : "");
+  let html = !q ? GIFTS + wedSection() : (/هدي|سحب|ايفون|iphone|بلايستيشن|ps5/.test(qn) ? GIFTS : "") + (/عرس|عريس|عروس|بكج/.test(qn) ? wedSection() : "");
   for (const c of D.cats) {
     const its = D.items.filter(it => it.cat === c.id && match(it)).sort((a, b) => a.price - b.price);
     if (!its.length) continue;
@@ -492,11 +492,13 @@ function render(q = "") {
       ${q ? `<div class="cat-h"><h2>${esc(c.label)}</h2></div>` : ""}
       <div class="grid">${its.map(card).join("")}</div></section>`;
   }
+  // HIGOLD آخر إشي بالصفحة (حمزة، 2026-10-27)
+  if (!q || /higold|هاي ?جولد|هايجولد|طقم|جلس|خارجي|برجول|سفر|حديق|زاوي/.test(qn)) html += hgSection();
   $("#list").innerHTML = html || `<div class="empty">ما لقينا «${esc(q)}». جرّب اسم ماركة أو نوع جهاز.</div>`;
   watch();
 }
 function chips() {
-  $("#chips").innerHTML = `<button class="chip gift-chip" data-c="gifts">🎁 الهدايا</button><button class="chip wed-chip" data-c="wedding">💍 العرسان</button><button class="chip hg-chip" data-c="higold">🌿 HIGOLD</button>` + D.cats.map(c => `<button class="chip" data-c="${c.id}">${esc(c.label)}</button>`).join("");
+  $("#chips").innerHTML = `<button class="chip gift-chip" data-c="gifts">🎁 الهدايا</button><button class="chip wed-chip" data-c="wedding">💍 العرسان</button>` + D.cats.map(c => `<button class="chip" data-c="${c.id}">${esc(c.label)}</button>`).join("") + `<button class="chip hg-chip" data-c="higold">🌿 HIGOLD</button>`;
   $("#chips").addEventListener("click", e => {
     const b = e.target.closest(".chip"); if (!b) return;
     if ($("#q").value) { $("#q").value = ""; render(); }
