@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الأصناف الخلصانة · كهرباء أبو غوش</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#050505">
+<link rel="icon" type="image/png" href="img/icon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;700;900&family=Montserrat:wght@600;900&display=swap" rel="stylesheet">
+<style>
+  :root { --red: #E30613; --bg: #050505; --panel: #151516; --line: #2a2a2c; --mute: #a3a3a8; --green: #1fa855; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: #fff; font: 500 16px/1.5 "Alexandria", system-ui, sans-serif; min-height: 100vh; }
+  button, input { font: inherit; color: inherit; }
+  .n { font-family: "Montserrat", sans-serif; direction: ltr; unicode-bidi: isolate; }
+  .wrap { max-width: 720px; margin: auto; padding: 16px; }
+  .login { max-width: 380px; margin: 12vh auto 0; }
+  h1 { font-size: 22px; font-weight: 900; }
+  .sub { color: var(--mute); font-size: 14px; margin: 6px 0 22px; }
+  label { display: block; font-size: 14px; color: var(--mute); margin: 14px 0 6px; }
+  input { width: 100%; height: 50px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 0 14px; outline: none; font-size: 16px; }
+  input:focus { border-color: #fff; }
+  .main { width: 100%; height: 52px; margin-top: 20px; background: var(--red); border: 0; border-radius: 12px; font-weight: 700; cursor: pointer; }
+  .err { color: #ff7b82; font-size: 14px; margin-top: 12px; min-height: 21px; }
+  .top { position: sticky; top: 0; background: var(--bg); padding: 12px 0 10px; z-index: 5; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .row h1 { font-size: 18px; }
+  .link { background: none; border: 0; color: var(--mute); font-size: 14px; cursor: pointer; white-space: nowrap; min-height: 44px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 2px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; height: 40px; padding: 0 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 20px; font-size: 14px; cursor: pointer; }
+  .chip.on { background: #fff; color: #000; border-color: #fff; font-weight: 700; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 10px; background: var(--panel); border-radius: 14px; margin-top: 8px; }
+  .item img { width: 60px; height: 60px; object-fit: contain; background: #fff; border-radius: 10px; flex: none; }
+  .info { flex: 1; min-width: 0; }
+  .info b { display: block; font-size: 14px; font-weight: 700; }
+  .info span { display: block; font-size: 12px; color: var(--mute); overflow-wrap: anywhere; }
+  .tog { flex: none; width: 96px; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: #2a2a2c; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .item.out { outline: 1px solid var(--red); }
+  .item.out img { opacity: .5; }
+  .item.out .tog { background: var(--green); border-color: var(--green); }
+  .tog:disabled { opacity: .5; }
+  .state { color: #ff7b82 !important; font-weight: 700; }
+  .empty { color: var(--mute); text-align: center; padding: 40px 0; }
+  .logline { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .logline em { color: var(--mute); font-style: normal; display: block; font-size: 12px; }
+  #toast { position: fixed; bottom: 18px; left: 16px; right: 16px; max-width: 480px; margin: auto; background: #fff; color: #000; border-radius: 12px; padding: 13px 16px; font-size: 14px; font-weight: 700; text-align: center; opacity: 0; transform: translateY(10px); transition: .2s; pointer-events: none; z-index: 9; }
+  #toast.on { opacity: 1; transform: none; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <form class="login" id="login">
+    <h1>الأصناف الخلصانة</h1>
+    <p class="sub">كهرباء أبو غوش · عروض Black November</p>
+    <label for="who">اسمك</label>
+    <input id="who" autocomplete="name" required maxlength="40">
+    <label for="pin">رمز الدخول</label>
+    <input id="pin" type="password" autocomplete="current-password" required>
+    <button class="main">دخول</button>
+    <div class="err" id="err" role="alert"></div>
+  </form>
+  <div id="app" hidden>
+    <div class="top">
+      <div class="row"><h1>الأصناف الخلصانة: <span class="n" id="count">0</span></h1><button class="link" id="out">خروج</button></div>
+      <input id="q" type="search" placeholder="دوّر بالاسم أو الموديل أو الماركة" aria-label="بحث">
+      <div class="chips" id="chips"></div>
+    </div>
+    <div id="list"></div>
+  </div>
+</div>
+<div id="toast" role="status"></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const norm = s => String(s).toLowerCase().replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
+let ITEMS = [], CATS = [], OUT = new Set(), cur = "all", who = "", pin = "", LOG = [];
+
+async function api(body) {
+  const r = await fetch("/api/soldout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ pin, who, ...body }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || "net");
+  return j;
+}
+const toast = t => { const e = $("#toast"); e.textContent = t; e.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove("on"), 2500); };
+
+async function loadItems() {
+  const [d, w, h] = await Promise.all(["data.json", "wedding.json", "higold.json"].map(f => fetch(f + "?v=" + Date.now()).then(r => r.json())));
+  CATS = [["all", "الكل"], ["out", "الخلصانين"], ...d.cats.map(c => [c.id, c.label]), ["wed", "العرسان"], ["hg", "HIGOLD"]];
+  ITEMS = [
+    ...d.items.map(i => ({ key: "p:" + i.id, cat: i.cat, name: [i.name, i.size, i.brand].filter(Boolean).join(" "), model: i.model, price: i.price, img: `img/${i.img}-s.webp` })),
+    ...w.map(p => ({ key: "w:" + p.id, cat: "wed", name: "بكج العرسان " + p.title, model: "", price: p.price, img: `img/wed-${p.id}.webp` })),
+    ...h.map(p => ({ key: "h:" + p.id, cat: "hg", name: `${p.pre} ${p.model} HIGOLD`, model: p.code, price: p.price, img: `img/hg-${p.id}.webp` })),
+  ];
+}
+function chips() {
+  $("#chips").innerHTML = CATS.map(([k, l]) => `<button class="chip${k === cur ? " on" : ""}" data-c="${k}">${esc(l)}</button>`).join("");
+}
+function draw() {
+  const ws = norm($("#q").value).split(/\s+/).filter(Boolean);
+  $("#count").textContent = OUT.size;
+  const its = ITEMS.filter(i => (cur === "all" || (cur === "out" ? OUT.has(i.key) : i.cat === cur)) && ws.every(w => norm(i.name + " " + i.model).includes(w)));
+  let h = its.map(i => { const o = OUT.has(i.key); return `<div class="item${o ? " out" : ""}">
+      <img src="${i.img}" alt="" loading="lazy">
+      <div class="info"><b>${esc(i.name)}</b><span class="n">${esc(i.model)}${i.model ? " · " : ""}${i.price} ₪</span>${o ? `<span class="state">نفدت الكمية</span>` : ""}</div>
+      <button class="tog" data-k="${esc(i.key)}">${o ? "رجع متوفر" : "خلص"}</button></div>`; }).join("");
+  if (!its.length) h = `<div class="empty">${cur === "out" && !ws.length ? "ما في أصناف خلصانة" : "ما لقينا إشي"}</div>`;
+  if (cur === "out" && LOG.length) h += `<h1 style="font-size:16px;margin-top:28px">آخر التغييرات</h1>` + LOG.map(l => {
+    const it = ITEMS.find(i => i.key === l.key);
+    return `<div class="logline">${esc(it ? it.name : l.key)}: ${l.out ? "خلص" : "رجع متوفر"}<em>${esc(l.who)} · ${new Date(l.at).toLocaleString("ar-PS-u-nu-latn", { timeZone: "Asia/Hebron", dateStyle: "short", timeStyle: "short" })}</em></div>`;
+  }).join("");
+  $("#list").innerHTML = h;
+}
+async function enter() {
+  const j = await api({ action: "log" });
+  OUT = new Set(j.out); LOG = j.log || [];
+  await loadItems();
+  $("#login").hidden = true; $("#app").hidden = false;
+  chips(); draw();
+}
+const MSG = { wrong_pin: "الرمز غلط، جرّب كمان مرة", locked: "محاولات كتير غلط، جرّب بعد 15 دقيقة", not_configured: "النظام مش مفعّل لسا، احكوا مع Socialestine" };
+$("#login").addEventListener("submit", async e => {
+  e.preventDefault(); $("#err").textContent = "";
+  who = $("#who").value.trim(); pin = $("#pin").value;
+  try { await enter(); try { sessionStorage.setItem("so", JSON.stringify({ who, pin })); localStorage.setItem("so-who", who); } catch (x) {} }
+  catch (x) { $("#err").textContent = MSG[x.message] || "في مشكلة بالنت، جرّب كمان مرة"; }
+});
+$("#chips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (b) { cur = b.dataset.c; chips(); draw(); scrollTo(0, 0); } });
+$("#q").addEventListener("input", draw);
+$("#list").addEventListener("click", async e => {
+  const b = e.target.closest(".tog"); if (!b) return;
+  const key = b.dataset.k, out = !OUT.has(key); b.disabled = true;
+  try {
+    const j = await api({ action: "set", key, out });
+    OUT = new Set(j.out);
+    const it = ITEMS.find(i => i.key === key);
+    LOG.unshift({ key, out: out ? 1 : 0, at: new Date().toISOString(), who });
+    draw(); toast(`${it.name}: ${out ? "نفدت الكمية" : "رجع متوفر"}`);
+  } catch (x) { b.disabled = false; toast(MSG[x.message] || "ما انحفظ، جرّب كمان مرة"); }
+});
+$("#out").addEventListener("click", () => { try { sessionStorage.removeItem("so"); } catch (x) {} location.reload(); });
+try {
+  $("#who").value = localStorage.getItem("so-who") || "";
+  const s = JSON.parse(sessionStorage.getItem("so") || "null");
+  if (s) { who = s.who; pin = s.pin; enter().catch(() => { try { sessionStorage.removeItem("so"); } catch (x) {} }); }
+} catch (x) {}
+</script>
+</body>
+</html>

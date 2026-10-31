@@ -211,6 +211,17 @@
   .wscroll { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -14px; padding: 4px 14px 12px; scrollbar-width: none; }
   .wscroll::-webkit-scrollbar { display: none; }
   .wcard { flex: 0 0 82%; scroll-snap-align: center; background: #0b0b0c; border-radius: 18px; overflow: hidden; box-shadow: 0 6px 18px #0000001f; text-align: right; color: #fff; cursor: pointer; }
+  .soldtag { position: absolute; top: 10px; right: 10px; z-index: 2; background: #1C1B1A; color: #fff; border-radius: 8px; padding: 4px 9px; font-size: 12px; font-weight: 700; line-height: 1.4; }
+  .card.sold, .wcard.sold { position: relative; }
+  .card.sold .pic img, .card.sold .brand img, .wcard.sold img { opacity: .4; filter: grayscale(1); }
+  .card.sold .p { color: #8a8a8f; }
+  .card.sold .add { display: none; }
+  #sheet.sold .sh-media { position: relative; opacity: 1; }
+  #sheet.sold .sh-media img { opacity: .45; filter: grayscale(1); }
+  #sheet.sold .addl { display: none; }
+  #sheet.sold .sh-btns .wa { background: #fff; color: var(--wa-ink); box-shadow: inset 0 0 0 1.5px var(--wa-ink); }
+  #sheet.sold .sh-btns .wa svg { fill: var(--wa-ink); }
+  #sheet.sold .soldtag { right: auto; left: 14px; top: 14px; }
   .wcard img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
   .wmeta { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px 12px; font-size: 15px; }
   .wmeta .n { color: #ff3a46; font-size: 20px; }
@@ -290,15 +301,28 @@ const brandHtml = (it, k = 1) => {
   return `<img src="img/${f}.webp" alt="${esc(it.brand)}" style="width:${w.toFixed(1)}px;height:${(w / ar).toFixed(1)}px">`;
 };
 
+// الأصناف الخلصانة: الشركة بتحددها من /admin، والموقع بيقرأها وقت الفتح
+let OUT = new Set();
+const SOLD = "نفدت الكمية";
+const soldTag = k => OUT.has(k) ? `<span class="soldtag">${SOLD}</span>` : "";
+const soldLast = (a, k) => a.map((x, i) => [x, i]).sort((x, y) => OUT.has(k(x[0])) - OUT.has(k(y[0])) || x[1] - y[1]).map(x => x[0]);
+const altLink = n => `https://wa.me/${WA_NUM}?text=${encodeURIComponent(`مرحبا، شفت إن ${n} نفدت كميته من عروض Black November. في بديل قريب منه؟`)}`;
+function markSheet(k, name) {
+  const sh = $("#sheet"), o = OUT.has(k); sh.classList.toggle("sold", o);
+  if (!o) return;
+  sh.querySelector(".sh-media").insertAdjacentHTML("afterbegin", soldTag(k));
+  const wa = sh.querySelector(".sh-btns .wa"); wa.href = altLink(name); wa.innerHTML = WA + " اسألنا عن بديل";
+}
 function card(it) {
-  return `<article class="card" data-id="${it.id}">
+  const k = "p:" + it.id, o = OUT.has(k);
+  return `<article class="card${o ? " sold" : ""}" data-id="${it.id}">${soldTag(k)}
     <div class="brand">${brandHtml(it)}</div>
     <div class="pic"><img src="img/${it.img}-s.webp" alt="${esc(title(it))}" loading="lazy" decoding="async"></div>
     <div class="nm"><b>${esc(it.name)}</b>${it.size ? ` <span>${esc(it.size)}</span>` : ""}</div>
     ${it.spec ? `<div class="tags">${esc(it.spec)}</div>` : ""}
     <div class="foot">
       <div class="pr"><span class="p n">${it.price}${SHK}</span><span class="o n">${it.old}${SHK}</span></div>
-      <div class="acts">${addBtn("p:" + it.id)}<a class="wa" href="${waLink(it)}" target="_blank" rel="noopener" aria-label="اطلب بالواتساب" onclick="event.stopPropagation()">${WA}</a></div>
+      <div class="acts">${addBtn("p:" + it.id)}${o ? "" : `<a class="wa" href="${waLink(it)}" target="_blank" rel="noopener" aria-label="اطلب بالواتساب" onclick="event.stopPropagation()">${WA}</a>`}</div>
     </div>
   </article>`;
 }
@@ -329,7 +353,7 @@ function wedSection() {
     <div class="whead"><div class="wkick">💍 عروض العرسان</div><h2>جهّزوا بيتكم كامل.. <span>من مكان واحد</span></h2>
       <p>8 بكجات كاملة: ثلاجة وغسالة وفرن وطباخ وتلفزيون، ومع كل بكج 6 هدايا</p></div>
     <div class="wbuds">${BUDS.map(([k, l]) => `<button class="wbud${BUD === k ? " on" : ""}" data-b="${k}">${l}</button>`).join("")}</div>
-    <div class="wscroll">${ps.map(p => `<button class="wcard" data-w="${p.id}" aria-label="بكج ${esc(p.title)} ${p.price} شيكل">
+    <div class="wscroll">${soldLast(ps, p => "w:" + p.id).map(p => `<button class="wcard${OUT.has("w:" + p.id) ? " sold" : ""}" data-w="${p.id}" aria-label="بكج ${esc(p.title)} ${p.price} شيكل">${soldTag("w:" + p.id)}
         <img src="img/wed-${p.id}.webp" alt="عرض العرسان ${esc(p.title)}" loading="lazy">
         <span class="wmeta"><b>بكج ${esc(p.title)}</b><span class="n">${p.price}${SHK}</span></span></button>`).join("")}</div>
     ${ps.length > 1 ? `<div class="whint">اسحب لتشوف باقي البكجات ←</div>` : ""}
@@ -348,6 +372,7 @@ function openWed(id, push = true) {
       <div class="sh-pr"><div><div class="p n">${p.price}${SHK}</div><div class="o n">${p.old}${SHK}</div></div><span class="save">وفّر <span class="n">${p.old - p.price}</span> ₪</span></div>
       <div class="sh-btns"><a class="wa" href="${wa}" target="_blank" rel="noopener">${WA} بدي هالبكج</a>
       <button class="share" onclick="shareWed('${p.id}')" aria-label="شارك">${SHARE}</button>${addBig("w:" + p.id)}</div></div>`;
+  markSheet("w:" + p.id, `بكج العرسان ${p.title}`);
   $("#pop").classList.add("open");
   if (push) history.pushState({ w: id }, "", "#w=" + id);
 }
@@ -371,7 +396,7 @@ function hgSection() {
       <p>10 أطقم ألمنيوم: جلسات وزوايا وسفرة وبرجولا، ومع كل طقم اختار هديتك</p>
       <div class="hgperks"><span>خصم <b class="n">50%</b></span><span>🎁 اختار هديتك</span><span>🚚 توصيل وتركيب مجاناً</span></div></div>
     <div class="wbuds">${HGTS.map(([k, l]) => `<button class="wbud hgt${HGT === k ? " on" : ""}" data-t="${k}">${l}</button>`).join("")}</div>
-    <div class="wscroll">${ps.map(p => `<button class="wcard" data-h="${p.id}" aria-label="${esc(hgName(p))} ${p.price} شيكل">
+    <div class="wscroll">${soldLast(ps, p => "h:" + p.id).map(p => `<button class="wcard${OUT.has("h:" + p.id) ? " sold" : ""}" data-h="${p.id}" aria-label="${esc(hgName(p))} ${p.price} شيكل">${soldTag("h:" + p.id)}
         <img src="img/hg-${p.id}.webp" alt="${esc(hgName(p))} من HIGOLD" loading="lazy">
         <span class="wmeta"><b>${LTR(esc(hgName(p)))}<small>${p.gifts > 1 ? "ومعه هديتين 🎁🎁" : "ومعه هدية 🎁"}</small></b><span class="n">${p.price}${SHK}</span></span></button>`).join("")}</div>
     ${ps.length > 1 ? `<div class="whint">اسحب لتشوف باقي الأطقم ←</div>` : ""}
@@ -401,6 +426,7 @@ function openHg(id, push = true) {
       <div class="sh-pr"><div><div class="p n">${p.price}${SHK}</div><div class="o n">${p.old}${SHK}</div></div><span class="save">وفّر <span class="n">${p.old - p.price}</span> ₪</span></div>
       <div class="sh-btns"><a class="wa" href="${hgWa(p)}" target="_blank" rel="noopener">${WA} بدي هالطقم</a>
       <button class="share" onclick="shareHg('${p.id}')" aria-label="شارك">${SHARE}</button>${addBig("h:" + p.id)}</div></div>`;
+  markSheet("h:" + p.id, `${hgName(p)} HIGOLD`);
   $("#pop").classList.add("open");
   if (push) history.pushState({ h: id }, "", "#h=" + id);
 }
@@ -485,7 +511,7 @@ function render(q = "") {
   const qn = norm(q);
   let html = !q ? GIFTS + wedSection() : (/هدي|سحب|ايفون|iphone|بلايستيشن|ps5/.test(qn) ? GIFTS : "") + (/عرس|عريس|عروس|بكج/.test(qn) ? wedSection() : "");
   for (const c of D.cats) {
-    const its = D.items.filter(it => it.cat === c.id && match(it)).sort((a, b) => a.price - b.price);
+    const its = D.items.filter(it => it.cat === c.id && match(it)).sort((a, b) => OUT.has("p:" + a.id) - OUT.has("p:" + b.id) || a.price - b.price);
     if (!its.length) continue;
     html += `<section class="cat" id="c-${c.id}">
       ${q ? "" : `<div class="cover"><img src="img/cover-${c.id}.webp" alt="${esc(c.label)}" loading="lazy"></div>`}
@@ -535,6 +561,7 @@ function openSheet(id, push = true) {
       <span class="save">وفّر <span class="n">${it.old - it.price}</span> ₪</span></div>
     <div class="sh-btns"><a class="wa" href="${waLink(it)}" target="_blank" rel="noopener">${WA} اطلب بالواتساب</a>
       <button class="share" onclick="share('${it.id}')" aria-label="شارك">${SHARE}</button>${addBig("p:" + it.id)}</div></div>`;
+  markSheet("p:" + it.id, title(it));
   $("#pop").classList.add("open");
   if (push) history.pushState({ p: id }, "", "#p=" + id);
 }
@@ -599,6 +626,13 @@ Promise.all([fetch("data.json?v=" + V).then(r => r.json()), fetch("wedding.json?
   if (location.hash.startsWith("#h=")) openHg(location.hash.slice(3), false);
   if (location.hash === "#list") openList(false);
   lbar();
+  // ما بتأخر فتح الموقع: لو فشلت، الأصناف بتبيّن عادي
+  fetch("/api/soldout").then(r => r.json()).then(j => {
+    OUT = new Set(j.out || []); if (!OUT.size) return;
+    render($("#q").value);
+    const h = location.hash;
+    if ($("#pop").classList.contains("open")) { if (h.startsWith("#p=")) openSheet(h.slice(3), false); if (h.startsWith("#w=")) openWed(h.slice(3), false); if (h.startsWith("#h=")) openHg(h.slice(3), false); }
+  }).catch(() => {});
 });
 </script>
 </body>
