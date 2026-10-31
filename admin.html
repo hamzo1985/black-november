@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>الأصناف الخلصانة · كهرباء أبو غوش</title>
+<title>توفّر الأصناف · كهرباء أبو غوش</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#050505">
 <link rel="icon" type="image/png" href="img/icon-32.png">
@@ -53,7 +53,7 @@
 <body>
 <div class="wrap">
   <form class="login" id="login">
-    <h1>الأصناف الخلصانة</h1>
+    <h1>توفّر الأصناف</h1>
     <p class="sub">كهرباء أبو غوش · عروض Black November</p>
     <label for="who">اسمك</label>
     <input id="who" autocomplete="name" required maxlength="40">
@@ -64,7 +64,7 @@
   </form>
   <div id="app" hidden>
     <div class="top">
-      <div class="row"><h1>الأصناف الخلصانة: <span class="n" id="count">0</span></h1><button class="link" id="out">خروج</button></div>
+      <div class="row"><h1>نفدت كميتها: <span class="n" id="count">0</span></h1><button class="link" id="out">خروج</button></div>
       <input id="q" type="search" placeholder="دوّر بالاسم أو الموديل أو الماركة" aria-label="بحث">
       <div class="chips" id="chips"></div>
     </div>
@@ -88,7 +88,7 @@ const toast = t => { const e = $("#toast"); e.textContent = t; e.classList.add("
 
 async function loadItems() {
   const [d, w, h] = await Promise.all(["data.json", "wedding.json", "higold.json"].map(f => fetch(f + "?v=" + Date.now()).then(r => r.json())));
-  CATS = [["all", "الكل"], ["out", "الخلصانين"], ...d.cats.map(c => [c.id, c.label]), ["wed", "العرسان"], ["hg", "HIGOLD"]];
+  CATS = [["all", "الكل"], ["out", "نفدت كميتها"], ...d.cats.map(c => [c.id, c.label]), ["wed", "العرسان"], ["hg", "HIGOLD"]];
   ITEMS = [
     ...d.items.map(i => ({ key: "p:" + i.id, cat: i.cat, name: [i.name, i.size, i.brand].filter(Boolean).join(" "), model: i.model, price: i.price, img: `img/${i.img}-s.webp` })),
     ...w.map(p => ({ key: "w:" + p.id, cat: "wed", name: "بكج العرسان " + p.title, model: "", price: p.price, img: `img/wed-${p.id}.webp` })),
@@ -105,11 +105,11 @@ function draw() {
   let h = its.map(i => { const o = OUT.has(i.key); return `<div class="item${o ? " out" : ""}">
       <img src="${i.img}" alt="" loading="lazy">
       <div class="info"><b>${esc(i.name)}</b><span class="n">${esc(i.model)}${i.model ? " · " : ""}${i.price} ₪</span>${o ? `<span class="state">نفدت الكمية</span>` : ""}</div>
-      <button class="tog" data-k="${esc(i.key)}">${o ? "رجع متوفر" : "خلص"}</button></div>`; }).join("");
-  if (!its.length) h = `<div class="empty">${cur === "out" && !ws.length ? "ما في أصناف خلصانة" : "ما لقينا إشي"}</div>`;
+      <button class="tog" data-k="${esc(i.key)}">${o ? "رجع متوفر" : "نفدت الكمية"}</button></div>`; }).join("");
+  if (!its.length) h = `<div class="empty">${cur === "out" && !ws.length ? "كل الأصناف متوفرة" : "ما لقينا إشي"}</div>`;
   if (cur === "out" && LOG.length) h += `<h1 style="font-size:16px;margin-top:28px">آخر التغييرات</h1>` + LOG.map(l => {
     const it = ITEMS.find(i => i.key === l.key);
-    return `<div class="logline">${esc(it ? it.name : l.key)}: ${l.out ? "خلص" : "رجع متوفر"}<em>${esc(l.who)} · ${new Date(l.at).toLocaleString("ar-PS-u-nu-latn", { timeZone: "Asia/Hebron", dateStyle: "short", timeStyle: "short" })}</em></div>`;
+    return `<div class="logline">${esc(it ? it.name : l.key)}: ${l.out ? "نفدت الكمية" : "رجع متوفر"}<em>${esc(l.who)} · ${new Date(l.at).toLocaleString("ar-PS-u-nu-latn", { timeZone: "Asia/Hebron", dateStyle: "short", timeStyle: "short" })}</em></div>`;
   }).join("");
   $("#list").innerHTML = h;
 }
