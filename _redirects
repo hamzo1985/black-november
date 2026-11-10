@@ -1,0 +1,13 @@
+# Black Friday magazine link (Hamza 2026-11-10): any spelling -> /Blackfriday.pdf (paths are case-sensitive)
+/blackfriday.pdf  /Blackfriday.pdf  301
+/BlackFriday.pdf  /Blackfriday.pdf  301
+/BLACKFRIDAY.pdf  /Blackfriday.pdf  301
+/BLACKFRIDAY.PDF  /Blackfriday.pdf  301
+/Blackfriday.PDF  /Blackfriday.pdf  301
+/blackfriday.PDF  /Blackfriday.pdf  301
+/blackfriday      /Blackfriday.pdf  301
+/Blackfriday      /Blackfriday.pdf  301
+/BlackFriday      /Blackfriday.pdf  301
+/BLACKFRIDAY      /Blackfriday.pdf  301
+/black-friday     /Blackfriday.pdf  301
+/black-friday.pdf /Blackfriday.pdf  301
